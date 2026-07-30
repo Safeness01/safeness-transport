@@ -1824,16 +1824,16 @@ export default function App() {
             <div className="relative flex overflow-hidden w-full">
               <div className="animate-marquee flex whitespace-nowrap w-max">
                 <div className="flex items-center gap-12 md:gap-24 px-6 md:px-12 flex-none">
-                  <img src="https://mcslimo.fr/wp-content/uploads/2023/04/uniformation.png" alt="Uniformation" className="h-6 object-contain brightness-0 invert opacity-60" />
-                  <img src="https://mcslimo.fr/wp-content/uploads/2023/04/2560px-Prada-Logo.svg-1024x159-1.webp" alt="Prada" className="h-4 object-contain brightness-0 invert opacity-60" />
-                  <img src="https://mcslimo.fr/wp-content/uploads/2023/04/1200px-Vaisala_logo.svg.png" alt="Vaisala" className="h-6 object-contain brightness-0 invert opacity-60" />
-                  <img src="https://mcslimo.fr/wp-content/uploads/2023/04/ETSGlobal_logo.a83452a9.png" alt="ETS Global" className="h-8 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410691/1200px-Vaisala_logo.svg_u59jsu.png" alt="Uniformation" className="h-6 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410691/2560px-Prada-Logo.svg-1024x159-1_uyx0zd.webp" alt="Prada" className="h-4 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410691/1200px-Vaisala_logo.svg_u59jsu.png" alt="Vaisala" className="h-6 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410692/ETSGlobal_logo.a83452a9_xxbkm6.png" alt="ETS Global" className="h-8 object-contain brightness-0 invert opacity-60" />
                 </div>
                 <div className="flex items-center gap-12 md:gap-24 px-6 md:px-12 flex-none">
-                  <img src="https://mcslimo.fr/wp-content/uploads/2023/04/uniformation.png" alt="Uniformation" className="h-6 object-contain brightness-0 invert opacity-60" />
-                  <img src="https://mcslimo.fr/wp-content/uploads/2023/04/2560px-Prada-Logo.svg-1024x159-1.webp" alt="Prada" className="h-4 object-contain brightness-0 invert opacity-60" />
-                  <img src="https://mcslimo.fr/wp-content/uploads/2023/04/1200px-Vaisala_logo.svg.png" alt="Vaisala" className="h-6 object-contain brightness-0 invert opacity-60" />
-                  <img src="https://mcslimo.fr/wp-content/uploads/2023/04/ETSGlobal_logo.a83452a9.png" alt="ETS Global" className="h-8 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410691/1200px-Vaisala_logo.svg_u59jsu.png" alt="Uniformation" className="h-6 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410691/2560px-Prada-Logo.svg-1024x159-1_uyx0zd.webp" alt="Prada" className="h-4 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410691/1200px-Vaisala_logo.svg_u59jsu.png" alt="Vaisala" className="h-6 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410692/ETSGlobal_logo.a83452a9_xxbkm6.png" alt="ETS Global" className="h-8 object-contain brightness-0 invert opacity-60" />
                 </div>
               </div>
             </div>

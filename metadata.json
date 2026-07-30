@@ -1,0 +1,5 @@
+{
+  "name": "SAFENESS transport",
+  "description": "Service de chauffeur privé de luxe avec SAFENESS transport.",
+  "requestFramePermissions": ["geolocation"]
+}

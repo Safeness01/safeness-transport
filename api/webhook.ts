@@ -69,7 +69,7 @@ export default async function handler(req: Request, res: Response) {
       try {
         // Email for the customer
         await resend.emails.send({
-          from: "SAFENESS transport <onboarding@resend.dev>",
+          from: "SAFENESS transport <contact@safeness-transport.com>",
           to: metadata.email,
           subject: "Confirmation de votre réservation - SAFENESS transport",
           html: `
@@ -98,8 +98,8 @@ export default async function handler(req: Request, res: Response) {
 
         // Email for the admin
         await resend.emails.send({
-          from: "SAFENESS transport <onboarding@resend.dev>",
-          to: "autowebaws@gmail.com", // Adress to notify
+          from: "SAFENESS transport <contact@safeness-transport.com>",
+          to: "contact@safeness-transport.com", // Adress to notify
           subject: "Nouvelle réservation confirmée !",
           html: `
             <div style="font-family: sans-serif; color: #333;">

@@ -1648,7 +1648,7 @@ export default function App() {
       {/* BACKGROUND LAYER */}
       <div className="fixed inset-0 z-0">
         <img 
-          src="https://a.storyblok.com/f/312129/4096x2731/cee1283139/chauffeur_1.jpg/m/2560x0/filters:format(webp)" 
+          src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785515186/Image_4_w94pqy.jpg" 
           alt="Premium Service Background" 
           className="w-full h-full object-cover object-center"
           referrerPolicy="no-referrer"

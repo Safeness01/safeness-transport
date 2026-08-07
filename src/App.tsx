@@ -714,10 +714,9 @@ export default function App() {
       corp_tag: 'Corporate',
       corp_title: 'Solutions Business',
       corp_subtitle: 'Solutions pour entreprises',
-      corp_desc: 'Safeness Transport propose des comptes corporate sur-mesure pour les entreprises, les hôtels de luxe et les agences événementielles. Optimisez la gestion des déplacements de vos collaborateurs et de vos clients VIP avec un partenaire fiable.',
+      corp_desc: 'Safeness Transport propose des comptes corporate sur-mesure pour les entreprises, les hôtels de luxe et les agences événementielles.',
       corp_li1: 'Facturation simplifiée et relevés mensuels détaillés.',
       corp_li2: 'Priorité sur les réservations et support client dédié 24/7.',
-      corp_li3: 'Coordination complète pour vos roadshows et grands événements.',
       corp_cta: 'Contact pour transferts entreprises',
       contact_pro: 'Contact Pro',
       vip_tag: 'En approche',
@@ -949,10 +948,9 @@ export default function App() {
       corp_tag: 'Corporate',
       corp_title: 'Business Solutions',
       corp_subtitle: 'Solutions for business',
-      corp_desc: 'Safeness Transport offers bespoke corporate accounts for companies, luxury hotels and event agencies. Optimize the management of your employees and VIP clients travels with a reliable partner.',
+      corp_desc: 'Safeness Transport offers bespoke corporate accounts for companies, luxury hotels and event agencies.',
       corp_li1: 'Simplified billing and detailed monthly statements.',
       corp_li2: 'Priority on bookings and dedicated 24/7 client support.',
-      corp_li3: 'Complete coordination for your roadshows and major events.',
       corp_cta: 'Contact us for corporate transfers',
       contact_pro: 'Contact Pro',
       vip_tag: 'Inbound',
@@ -1184,10 +1182,9 @@ export default function App() {
       corp_tag: 'Corporativo',
       corp_title: 'Soluciones de Negocio',
       corp_subtitle: 'Soluciones para empresas',
-      corp_desc: 'Safeness Transport ofrece cuentas corporativas a medida para empresas, hoteles de lujo y agencias de eventos. Optimice la gestión de los viajes de sus colaboradores y clientes VIP con un socio de confianza.',
+      corp_desc: 'Safeness Transport ofrece cuentas corporativas a medida para empresas, hoteles de lujo y agencias de eventos.',
       corp_li1: 'Facturación simplificada y estados de cuenta mensuales detallados.',
       corp_li2: 'Prioridad en las reservas y soporte al cliente dedicado 24/7.',
-      corp_li3: 'Coordinación completa para sus roadshows y grandes eventos.',
       corp_cta: 'Contacto para traslados de empresas',
       contact_pro: 'Contacto Pro',
       vip_tag: 'En aproximación',
@@ -1717,7 +1714,7 @@ export default function App() {
             <a href="https://www.tiktok.com/@safeness.transport?is_from_webapp=1&amp;sender_device=pc" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-all hover:scale-110 active:scale-95" aria-label="TikTok">
               <iconify-icon icon="ic:baseline-tiktok" width="24"></iconify-icon>
             </a>
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-all hover:scale-110 active:scale-95" aria-label="Instagram">
+            <a href="https://www.instagram.com/safeness_transport?igsh=MWtyZGw5OW5rNXRldA==" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-all hover:scale-110 active:scale-95" aria-label="Instagram">
               <Instagram size={24} strokeWidth={1.5} />
             </a>
             <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-all hover:scale-110 active:scale-95" aria-label="Facebook">
@@ -2485,10 +2482,6 @@ export default function App() {
                     <SolarCheckCircleLinear size={20} className="text-white mt-1 shrink-0" strokeWidth={1.5} />
                     <span className="font-normal text-[15px]">{t('corp_li2')}</span>
                   </li>
-                  <li className="flex items-start gap-3 text-stone-200">
-                    <SolarCheckCircleLinear size={20} className="text-white mt-1 shrink-0" strokeWidth={1.5} />
-                    <span className="font-normal text-[15px]">{t('corp_li3')}</span>
-                  </li>
                 </ul>
                 <a href="#hero" className="flex text-base text-white font-normal border-b border-white/20 pb-1 w-fit hover:border-white transition-colors items-center gap-2">
                   {t('corp_cta')}
@@ -2880,14 +2873,14 @@ export default function App() {
 
                   {/* Step 1: Ride Details */}
                   {step === 1 && (
-                    <div className="space-y-5 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                       {bookingError && (
                         <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3.5 rounded-xl text-xs md:text-sm font-medium animate-in fade-in duration-300">
                           {bookingError}
                         </div>
                       )}
                       
-                      <div className="space-y-2 relative flex flex-col">
+                      <div className="space-y-2 relative flex flex-col pt-1.5 md:pt-0">
                         <label className="text-xs font-bold text-stone-900 uppercase tracking-wider ml-1">{t('itinerary_label')}</label>
                         
                         <div className="relative border border-stone-300 rounded-xl bg-white overflow-visible">
@@ -3006,7 +2999,7 @@ export default function App() {
                       </div>
 
                       {/* Unified Date & Time Field */}
-                      <div className="space-y-2 relative flex flex-col">
+                      <div className="space-y-2 relative flex flex-col pt-1.5 md:pt-0">
                         <label className="text-xs font-bold text-stone-900 uppercase tracking-wider ml-1">
                           {lang === 'fr' ? 'Date & Heure' : lang === 'es' ? 'Fecha y hora' : 'Date & Time'}
                         </label>
@@ -3052,7 +3045,7 @@ export default function App() {
                         </div>
                       </div>
 
-                      <div className="space-y-4">
+                      <div className="space-y-4 pt-1.5 md:pt-0">
                         <button 
                           onClick={() => setBookingData(prev => ({ 
                             ...prev, 
@@ -3075,7 +3068,7 @@ export default function App() {
                         </button>
 
                         {bookingData.isReturnTrip && (
-                          <div className="space-y-2 relative flex flex-col animate-in fade-in slide-in-from-top-2 duration-300">
+                          <div className="space-y-2 relative flex flex-col pt-1 md:pt-0 animate-in fade-in slide-in-from-top-2 duration-300">
                             <label className="text-xs font-bold text-stone-900 uppercase tracking-wider ml-1">
                               {lang === 'fr' ? 'Date & Heure de retour' : lang === 'es' ? 'Fecha y hora de vuelta' : 'Return Date & Time'}
                             </label>
@@ -3125,7 +3118,7 @@ export default function App() {
 
                       {/* Passengers Selector removed from here */}
                       
-                      <div className="flex gap-4">
+                      <div className="flex gap-4 pt-2 md:pt-0">
                         <button 
                           onClick={handleNextStep1}
                           disabled={loading}
@@ -3144,7 +3137,7 @@ export default function App() {
 
                       {/* Map Container - Relocated to Step 1 below View Prices button (Mobile/Tablet Only) */}
                       {!isDesktop && (
-                        <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-sm relative h-[220px] md:h-[280px] mt-4 animate-in fade-in duration-500 block">
+                        <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-sm relative h-[286px] md:h-[364px] mt-4 animate-in fade-in duration-500 block">
                           <div ref={mapContainerRef} className="w-full h-full z-0" />
                           {bookingData.distance > 0 && (
                             <div className="absolute bottom-4 right-4 z-10">

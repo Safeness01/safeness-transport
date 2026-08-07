@@ -714,7 +714,7 @@ export default function App() {
       corp_tag: 'Corporate',
       corp_title: 'Solutions Business',
       corp_subtitle: 'Solutions pour entreprises',
-      corp_desc: 'Safeness Transport propose des comptes corporate sur-mesure pour les entreprises, les hôtels de luxe et les agences événementielles.',
+      corp_desc: 'Safeness Transport propose des comptes corporate sur-mesure pour les entreprises, les hôtels de luxe et les agences événementielles. Optimisez la gestion des déplacements de vos collaborateurs et de vos clients VIP avec un partenaire fiable.',
       corp_li1: 'Facturation simplifiée et relevés mensuels détaillés.',
       corp_li2: 'Priorité sur les réservations et support client dédié 24/7.',
       corp_cta: 'Contact pour transferts entreprises',
@@ -948,7 +948,7 @@ export default function App() {
       corp_tag: 'Corporate',
       corp_title: 'Business Solutions',
       corp_subtitle: 'Solutions for business',
-      corp_desc: 'Safeness Transport offers bespoke corporate accounts for companies, luxury hotels and event agencies.',
+      corp_desc: 'Safeness Transport offers bespoke corporate accounts for companies, luxury hotels and event agencies. Optimize the management of your employees and VIP clients travels with a reliable partner.',
       corp_li1: 'Simplified billing and detailed monthly statements.',
       corp_li2: 'Priority on bookings and dedicated 24/7 client support.',
       corp_cta: 'Contact us for corporate transfers',
@@ -1182,7 +1182,7 @@ export default function App() {
       corp_tag: 'Corporativo',
       corp_title: 'Soluciones de Negocio',
       corp_subtitle: 'Soluciones para empresas',
-      corp_desc: 'Safeness Transport ofrece cuentas corporativas a medida para empresas, hoteles de lujo y agencias de eventos.',
+      corp_desc: 'Safeness Transport ofrece cuentas corporativas a medida para empresas, hoteles de lujo y agencias de eventos. Optimice la gestión de los viajes de sus colaboradores y clientes VIP con un socio de confianza.',
       corp_li1: 'Facturación simplificada y estados de cuenta mensuales detallados.',
       corp_li2: 'Prioridad en las reservas y soporte al cliente dedicado 24/7.',
       corp_cta: 'Contacto para traslados de empresas',
@@ -2880,7 +2880,7 @@ export default function App() {
                         </div>
                       )}
                       
-                      <div className="space-y-2 relative flex flex-col pt-1.5 md:pt-0">
+                      <div className="space-y-2 relative flex flex-col pt-3.5 md:pt-0">
                         <label className="text-xs font-bold text-stone-900 uppercase tracking-wider ml-1">{t('itinerary_label')}</label>
                         
                         <div className="relative border border-stone-300 rounded-xl bg-white overflow-visible">

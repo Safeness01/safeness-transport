@@ -6,7 +6,7 @@
 import { useEffect, useState, useRef, useMemo, useCallback, Fragment } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Stripe, loadStripe } from '@stripe/stripe-js';
-import L from 'leaflet';
+import { setOptions, importLibrary } from '@googlemaps/js-api-loader';
 import { 
   MapPin, Navigation, Calendar, Clock, Users, User, Briefcase, Building2,
   ChevronRight, ChevronLeft, ChevronDown, ArrowUpRight, Check, CreditCard, Plane, Tag, Sparkles, Palette,
@@ -25,6 +25,35 @@ if (!STRIPE_PUBLIC_KEY) {
 }
 
 const stripePromise = loadStripe(STRIPE_PUBLIC_KEY);
+
+const GOOGLE_MAPS_API_KEY =
+  (import.meta as any).env?.VITE_GOOGLE_MAPS_API_KEY ||
+  process.env.VITE_GOOGLE_MAPS_API_KEY ||
+  process.env.GOOGLE_MAPS_PLATFORM_KEY ||
+  '';
+
+const mapDarkStyles: google.maps.MapTypeStyle[] = [
+  { elementType: "geometry", stylers: [{ color: "#212121" }] },
+  { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#212121" }] },
+  { featureType: "administrative", elementType: "geometry", stylers: [{ color: "#757575" }] },
+  { featureType: "administrative.country", elementType: "labels.text.fill", stylers: [{ color: "#9e9e9e" }] },
+  { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#bdbdbd" }] },
+  { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#181818" }] },
+  { featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#616161" }] },
+  { featureType: "road", elementType: "geometry.fill", stylers: [{ color: "#2c2c2c" }] },
+  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#8a8a8a" }] },
+  { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#373737" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#3c3c3c" }] },
+  { featureType: "road.highway.controlled_access", elementType: "geometry", stylers: [{ color: "#4e4e4e" }] },
+  { featureType: "road.local", elementType: "labels.text.fill", stylers: [{ color: "#616161" }] },
+  { featureType: "transit", elementType: "geometry", stylers: [{ color: "#2f2f2f" }] },
+  { featureType: "transit.station", elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#000000" }] },
+  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#3d3d3d" }] }
+];
 
 // Extend JSX namespace for iconify-icon
 declare global {
@@ -401,10 +430,13 @@ export default function App() {
     }
   }, [bookingData.dropoff, bookingData.dropoffCoords, lang]);
 
-  const mapRef = useRef<L.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const markersRef = useRef<{ pickup: L.Marker | null; dropoff: L.Marker | null }>({ pickup: null, dropoff: null });
-  const routeLineRef = useRef<L.Layer | null>(null);
+  const googleMapRef = useRef<google.maps.Map | null>(null);
+  const directionsServiceRef = useRef<google.maps.DirectionsService | null>(null);
+  const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(null);
+  const autocompleteServiceRef = useRef<google.maps.places.AutocompleteService | null>(null);
+  const geocoderRef = useRef<google.maps.Geocoder | null>(null);
+  const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
 
   const revealRefs = useRef<(HTMLDivElement | HTMLElement)[]>([]);
   const servicesScrollRef = useRef<HTMLDivElement>(null);
@@ -503,9 +535,10 @@ export default function App() {
     try {
       if (serviceType === 'transfer' && pickupCoords && dropoffCoords) {
         await calculateRoute(pickupCoords, dropoffCoords);
-      } else if (serviceType === 'hourly' && pickupCoords) {
+      } else if (serviceType === 'hourly' && pickupCoords && googleMapRef.current) {
         // Just center map on pickup if hourly
-        mapRef.current?.setView(pickupCoords, 14);
+        googleMapRef.current.setCenter({ lat: pickupCoords[0], lng: pickupCoords[1] });
+        googleMapRef.current.setZoom(14);
       } else {
         // Fallback values if coordinates are missing or not geocoded yet
         setBookingData(prev => ({
@@ -1333,166 +1366,215 @@ export default function App() {
     return () => clearInterval(timer);
   }, [nextReview, isReviewsPaused, isReviewsVisible]);
 
-  // Initialize Map
+  // Load Google Maps API Script
   useEffect(() => {
-    let mapInstance: L.Map | null = null;
-    if (mapContainerRef.current && !mapRef.current) {
-      const map = L.map(mapContainerRef.current, {
-        zoomControl: false,
-        attributionControl: false
-      }).setView([48.8566, 2.3522], 12);
-
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19
-      }).addTo(map);
-      
-      mapRef.current = map;
-      mapInstance = map;
-
-      // Draw pickup marker if it exists
-      if (bookingData.pickupCoords) {
-        const icon = L.divIcon({
-          className: 'custom-div-icon',
-          html: `<div class="w-8 h-8 bg-stone-900 rounded-full border-2 border-white flex items-center justify-center shadow-lg"><div class="w-2 h-2 bg-white rounded-full"></div></div>`,
-          iconSize: [32, 32],
-          iconAnchor: [16, 16]
-        });
-        markersRef.current.pickup = L.marker(bookingData.pickupCoords, { icon }).addTo(map);
-      }
-
-      // Draw dropoff marker if it exists
-      if (bookingData.dropoffCoords) {
-        const icon = L.divIcon({
-          className: 'custom-div-icon',
-          html: `<div class="w-8 h-8 bg-stone-600 rounded-full border-2 border-white flex items-center justify-center shadow-lg"><div class="w-2 h-2 bg-white rounded-full"></div></div>`,
-          iconSize: [32, 32],
-          iconAnchor: [16, 16]
-        });
-        markersRef.current.dropoff = L.marker(bookingData.dropoffCoords, { icon }).addTo(map);
-      }
-    }
-    
-    // Ensure route is drawn if container is now available and map is ready
-    if (mapRef.current && bookingData.pickupCoords && bookingData.dropoffCoords && !routeLineRef.current) {
-      calculateRoute(bookingData.pickupCoords, bookingData.dropoffCoords);
+    if (!GOOGLE_MAPS_API_KEY) {
+      console.warn('VITE_GOOGLE_MAPS_API_KEY is missing');
+      return;
     }
 
-    return () => {
-      if (mapInstance) {
-        mapInstance.remove();
-        mapRef.current = null;
-        markersRef.current = { pickup: null, dropoff: null };
-        routeLineRef.current = null;
-      }
-    };
-  }, [step, bookingData.pickupCoords, bookingData.dropoffCoords, isDesktop]);
+    setOptions({
+      key: GOOGLE_MAPS_API_KEY,
+      v: 'weekly',
+      libraries: ['places', 'geometry', 'routes']
+    });
 
-  // Invalidate map size when step changes (for layout transitions)
-  useEffect(() => {
-    if (mapRef.current) {
-      setTimeout(() => {
-        mapRef.current?.invalidateSize();
-        
-        // Ensure the route is visible if it exists
-        if (routeLineRef.current && (step >= 1 && step <= 4)) {
-          if ('getBounds' in routeLineRef.current) {
-            mapRef.current?.fitBounds((routeLineRef.current as any).getBounds(), { padding: [50, 50] });
+    Promise.all([
+      importLibrary('maps'),
+      importLibrary('places'),
+      importLibrary('routes'),
+      importLibrary('geocoding')
+    ]).then(() => {
+      setIsGoogleLoaded(true);
+      if (window.google?.maps?.places) {
+        autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
+        geocoderRef.current = new window.google.maps.Geocoder();
+      }
+      if (window.google?.maps) {
+        directionsServiceRef.current = new window.google.maps.DirectionsService();
+      }
+    }).catch(err => {
+      console.error('Error loading Google Maps API:', err);
+    });
+  }, []);
+
+  const calculateRoute = useCallback((p1: [number, number], p2: [number, number]) => {
+    if (directionsServiceRef.current && directionsRendererRef.current && googleMapRef.current) {
+      directionsServiceRef.current.route(
+        {
+          origin: { lat: p1[0], lng: p1[1] },
+          destination: { lat: p2[0], lng: p2[1] },
+          travelMode: window.google.maps.TravelMode.DRIVING
+        },
+        (result, status) => {
+          if (status === window.google.maps.DirectionsStatus.OK && result) {
+            directionsRendererRef.current?.setDirections(result);
+            const route = result.routes[0];
+            if (route?.legs?.[0]) {
+              const distMeters = route.legs[0].distance?.value || 0;
+              const durationSecs = route.legs[0].duration?.value || 0;
+              const distanceKm = distMeters / 1000;
+              const durationMin = durationSecs / 60;
+              setBookingData(prev => ({
+                ...prev,
+                distance: distanceKm,
+                duration: durationMin
+              }));
+            }
+          } else {
+            console.error('Directions request failed:', status);
+            setBookingData(prev => ({ ...prev, distance: 15, duration: 30 }));
           }
         }
-      }, 600);
+      );
+    } else {
+      fetch(`https://router.project-osrm.org/route/v1/driving/${p1[1]},${p1[0]};${p2[1]},${p2[0]}?overview=full&geometries=geojson`)
+        .then(res => res.json())
+        .then(data => {
+          if (data?.routes?.[0]) {
+            setBookingData(prev => ({
+              ...prev,
+              distance: data.routes[0].distance / 1000,
+              duration: data.routes[0].duration / 60
+            }));
+          }
+        })
+        .catch(() => {
+          setBookingData(prev => ({ ...prev, distance: 15, duration: 30 }));
+        });
     }
-  }, [step]);
+  }, []);
+
+  // Initialize and update Google Map container
+  useEffect(() => {
+    if (!isGoogleLoaded || !mapContainerRef.current) return;
+
+    if (!googleMapRef.current) {
+      const map = new window.google.maps.Map(mapContainerRef.current, {
+        center: { lat: 48.8566, lng: 2.3522 },
+        zoom: 12,
+        disableDefaultUI: true,
+        zoomControl: true,
+        styles: mapDarkStyles
+      });
+      googleMapRef.current = map;
+
+      const renderer = new window.google.maps.DirectionsRenderer({
+        map,
+        suppressMarkers: false,
+        polylineOptions: {
+          strokeColor: '#ffffff',
+          strokeWeight: 4,
+          strokeOpacity: 0.9
+        }
+      });
+      directionsRendererRef.current = renderer;
+    } else {
+      const mapDiv = googleMapRef.current.getDiv();
+      if (mapDiv && mapDiv !== mapContainerRef.current && mapContainerRef.current) {
+        mapContainerRef.current.appendChild(mapDiv);
+        window.google?.maps?.event?.trigger(googleMapRef.current, 'resize');
+      }
+    }
+
+    if (bookingData.pickupCoords && bookingData.dropoffCoords) {
+      calculateRoute(bookingData.pickupCoords, bookingData.dropoffCoords);
+    } else if (bookingData.pickupCoords && googleMapRef.current) {
+      googleMapRef.current.setCenter({ lat: bookingData.pickupCoords[0], lng: bookingData.pickupCoords[1] });
+      googleMapRef.current.setZoom(14);
+    }
+  }, [isGoogleLoaded, step, isDesktop, bookingData.pickupCoords, bookingData.dropoffCoords, calculateRoute]);
 
   const searchAddress = async (query: string, type: 'pickup' | 'dropoff' | 'returnPickup' | 'returnDropoff') => {
-    if (query.length < 3) {
+    if (query.length < 2) {
       setSuggestions(prev => ({ ...prev, [type]: [] }));
       return;
     }
-    
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5&countrycodes=fr,be,ch,lu,it,es,de,nl,gb`
+
+    if (autocompleteServiceRef.current) {
+      autocompleteServiceRef.current.getPlacePredictions(
+        {
+          input: query,
+          componentRestrictions: { country: ['fr', 'be', 'ch', 'lu', 'it', 'es', 'de', 'nl', 'gb'] }
+        },
+        (predictions, status) => {
+          if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
+            const results = predictions.map(p => ({
+              description: p.description,
+              placeId: p.place_id,
+              lat: null,
+              lon: null
+            }));
+            setSuggestions(prev => ({ ...prev, [type]: results }));
+          } else {
+            setSuggestions(prev => ({ ...prev, [type]: [] }));
+          }
+        }
       );
-      if (!response.ok) {
-        throw new Error('Nominatim request failed');
-      }
-      const data = await response.json();
-      if (Array.isArray(data)) {
-        const results = data.map((item: any) => ({
-          description: item.display_name,
-          lat: item.lat,
-          lon: item.lon,
-        }));
-        setSuggestions(prev => ({ ...prev, [type]: results }));
-      } else {
+    } else {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5&countrycodes=fr,be,ch,lu,it,es,de,nl,gb`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data)) {
+            setSuggestions(prev => ({
+              ...prev,
+              [type]: data.map((item: any) => ({
+                description: item.display_name,
+                lat: item.lat,
+                lon: item.lon,
+              }))
+            }));
+          }
+        }
+      } catch (e) {
+        console.error('Nominatim Search Error:', e);
         setSuggestions(prev => ({ ...prev, [type]: [] }));
       }
-    } catch (e) {
-      console.error('Nominatim Search Error:', e);
-      setSuggestions(prev => ({ ...prev, [type]: [] }));
     }
   };
 
   const selectAddress = (item: any, type: 'pickup' | 'dropoff' | 'returnPickup' | 'returnDropoff') => {
-    const lat = typeof item.lat === 'string' ? parseFloat(item.lat) : item.lat;
-    const lon = typeof item.lon === 'string' ? parseFloat(item.lon) : item.lon;
-    const coords: [number, number] = [lat, lon];
-    
-    setBookingData(prev => ({
-      ...prev,
-      [type]: item.description,
-      [`${type}Coords`]: coords
-    }));
-    setSuggestions(prev => ({ ...prev, [type]: [] }));
+    const applyCoordsAndAddress = (coords: [number, number], address: string) => {
+      setBookingData(prev => ({
+        ...prev,
+        [type]: address,
+        [`${type}Coords`]: coords
+      }));
+      setSuggestions(prev => ({ ...prev, [type]: [] }));
 
-    if (mapRef.current && (type === 'pickup' || type === 'dropoff')) {
-      if (markersRef.current[type]) {
-        markersRef.current[type]?.remove();
-      }
-      const icon = L.divIcon({
-        className: 'custom-div-icon',
-        html: `<div class="w-8 h-8 ${type === 'pickup' ? 'bg-stone-900' : 'bg-stone-600'} rounded-full border-2 border-white flex items-center justify-center shadow-lg"><div class="w-2 h-2 bg-white rounded-full"></div></div>`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16]
-      });
-      markersRef.current[type] = L.marker(coords, { icon }).addTo(mapRef.current);
-      
       const otherType = type === 'pickup' ? 'dropoff' : 'pickup';
-      if (bookingData[`${otherType}Coords`]) {
-        calculateRoute(coords, bookingData[`${otherType}Coords`] as [number, number]);
-      } else {
-        mapRef.current.setView(coords, 14);
-      }
-    }
-  };
+      const currentOtherCoords = bookingData[`${otherType}Coords` as keyof typeof bookingData] as [number, number] | null;
 
-  const calculateRoute = async (p1: [number, number], p2: [number, number]) => {
-    try {
-      const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${p1[1]},${p1[0]};${p2[1]},${p2[0]}?overview=full&geometries=geojson`);
-      const data = await response.json();
-      if (data.routes && data.routes[0]) {
-        const route = data.routes[0];
-        const distance = route.distance / 1000; // km
-        const duration = route.duration / 60; // min
-
-        setBookingData(prev => ({ ...prev, distance, duration }));
-
-        if (routeLineRef.current) routeLineRef.current.remove();
-        
-        if (mapRef.current) {
-          routeLineRef.current = L.geoJSON(route.geometry, {
-            style: { color: '#1c1917', weight: 4, opacity: 0.8 }
-          }).addTo(mapRef.current);
-
-          if (routeLineRef.current && 'getBounds' in routeLineRef.current) {
-            mapRef.current.fitBounds((routeLineRef.current as any).getBounds(), { padding: [50, 50] });
-          }
+      if (type === 'pickup' || type === 'dropoff') {
+        if (currentOtherCoords) {
+          const p1 = type === 'pickup' ? coords : currentOtherCoords;
+          const p2 = type === 'pickup' ? currentOtherCoords : coords;
+          calculateRoute(p1, p2);
+        } else if (googleMapRef.current) {
+          googleMapRef.current.setCenter({ lat: coords[0], lng: coords[1] });
+          googleMapRef.current.setZoom(14);
         }
       }
-    } catch (error) {
-      console.error('Route error:', error);
-      // Fallback values to not block the user
-      setBookingData(prev => ({ ...prev, distance: 15, duration: 30 }));
+    };
+
+    if (item.placeId && geocoderRef.current) {
+      geocoderRef.current.geocode({ placeId: item.placeId }, (results, status) => {
+        if (status === window.google.maps.GeocoderStatus.OK && results?.[0]) {
+          const location = results[0].geometry.location;
+          const lat = location.lat();
+          const lng = location.lng();
+          applyCoordsAndAddress([lat, lng], results[0].formatted_address || item.description);
+        } else {
+          applyCoordsAndAddress([48.8566, 2.3522], item.description);
+        }
+      });
+    } else {
+      const lat = typeof item.lat === 'string' ? parseFloat(item.lat) : (item.lat || 48.8566);
+      const lon = typeof item.lon === 'string' ? parseFloat(item.lon) : (item.lon || 2.3522);
+      applyCoordsAndAddress([lat, lon], item.description);
     }
   };
 
@@ -1681,8 +1763,8 @@ export default function App() {
             <div className="w-1 h-3 md:h-4 bg-white/60 rounded-t-sm"></div>
             <div className="w-1 h-4 md:h-5 bg-white rounded-t-sm"></div>
           </div>
-          <h1 className="text-[15px] md:text-lg font-normal tracking-[0.18em] md:tracking-[0.25em] uppercase text-white/90 whitespace-nowrap">Safeness transport</h1>
-          <p className="text-[11px] md:text-xs tracking-[0.1em] md:tracking-[0.15em] text-white/50 uppercase mt-0.5 whitespace-nowrap">Global Chauffeur Network</p>
+          <h1 className="text-[15px] md:text-lg font-normal tracking-[0.18em] md:tracking-[0.25em] uppercase text-white/90 whitespace-nowrap notranslate" translate="no">Safeness transport</h1>
+          <p className="text-[11px] md:text-xs tracking-[0.1em] md:tracking-[0.15em] text-white/50 uppercase mt-0.5 whitespace-nowrap notranslate" translate="no">Global Chauffeur Network</p>
         </div>
 
         <div className="w-10 flex justify-end relative group/lang">
@@ -1740,13 +1822,14 @@ export default function App() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.4 }}
-          className="flex flex-col items-center mb-12"
+          className="flex flex-col items-center mb-12 notranslate"
+          translate="no"
         >
           <div className="relative inline-block pb-1 mb-[2px] md:mb-1">
-            <h2 className="text-[51px] leading-none md:text-7xl font-semibold tracking-[0.02em] uppercase text-white drop-shadow-sm">{t('hero_brand')}</h2>
+            <h2 className="text-[51px] leading-none md:text-7xl font-semibold tracking-[0.02em] uppercase text-white drop-shadow-sm notranslate" translate="no">{t('hero_brand')}</h2>
             <div className="absolute bottom-0 left-[15%] right-[15%] h-px bg-zinc-300 rounded-full opacity-80"></div>
           </div>
-          <h2 className="text-[51px] leading-none md:text-7xl font-semibold tracking-[0.02em] uppercase text-white drop-shadow-sm mt-[2px] md:mt-1">{t('hero_worldwide')}</h2>
+          <h2 className="text-[51px] leading-none md:text-7xl font-semibold tracking-[0.02em] uppercase text-white drop-shadow-sm mt-[2px] md:mt-1 notranslate" translate="no">{t('hero_worldwide')}</h2>
         </motion.div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -2028,7 +2111,7 @@ export default function App() {
               >
                 <div className="absolute inset-0 p-8 flex flex-col justify-between">
                   <div>
-                    <h3 className="text-xl font-semibold text-white uppercase mb-2 tracking-tight">{t('europe_connect_title')}</h3>
+                    <h3 className="text-xl font-semibold text-white uppercase mb-2 tracking-tight notranslate" translate="no">{t('europe_connect_title')}</h3>
                     <p className="text-stone-400 text-[13px] font-light leading-relaxed">
                       {t('europe_connect_desc')}
                     </p>
@@ -2554,7 +2637,11 @@ export default function App() {
                 <Star size={12} className="text-white/60" />
                 <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-white/90">{t('vision_tag')}</span>
               </div>
-              <h2 className="text-[38px] md:text-4xl lg:text-5xl font-bold tracking-[0.02em] uppercase text-white drop-shadow-sm leading-[1.25] md:leading-snug">{t('vision_title')}</h2>
+              <h2 className="text-[38px] md:text-4xl lg:text-5xl font-bold tracking-[0.02em] uppercase text-white drop-shadow-sm leading-[1.25] md:leading-snug">
+                {t('vision_title').split(/(Safeness)/g).map((part, i) => 
+                  part === 'Safeness' ? <span key={i} className="notranslate" translate="no">Safeness</span> : part
+                )}
+              </h2>
               <div className="h-1 w-12 bg-white/20 rounded-full mt-7 md:mt-8"></div>
               <p className="text-stone-300/90 text-lg font-normal leading-relaxed max-w-3xl mt-10 md:mt-8 text-center italic">
                 {t('vision_desc')}
@@ -3373,9 +3460,9 @@ export default function App() {
                             distance: 0,
                             duration: 0
                           });
-                          if (markersRef.current.pickup) markersRef.current.pickup.remove();
-                          if (markersRef.current.dropoff) markersRef.current.dropoff.remove();
-                          if (routeLineRef.current) routeLineRef.current.remove();
+                          if (directionsRendererRef.current) {
+                            directionsRendererRef.current.set('directions', null);
+                          }
                         }}
                         className="bg-stone-100 text-stone-900 px-8 py-4 rounded-xl font-bold hover:bg-stone-200 transition-all"
                       >
@@ -3542,7 +3629,7 @@ export default function App() {
                 <div className="w-1 h-4 bg-white/60 rounded-t-sm"></div>
                 <div className="w-1 h-5 bg-white rounded-t-sm"></div>
               </div>
-              <h1 className="text-[19px] font-medium tracking-[0.25em] uppercase text-white/70 mb-5">Safeness transport</h1>
+              <h1 className="text-[19px] font-medium tracking-[0.25em] uppercase text-white/70 mb-5 notranslate" translate="no">Safeness transport</h1>
               <p className="text-[13.5px] md:text-[15px] font-normal text-white/45 tracking-wide max-w-lg">
                 {t('footer_desc')}
               </p>
@@ -3570,7 +3657,7 @@ export default function App() {
               </div>
             </div>
             <div className="flex flex-col md:flex-row items-center justify-between w-full text-[11px] md:text-[13px] text-white/30 uppercase tracking-[0.2em] mt-8 gap-4 text-center font-normal">
-              <p>Safeness transport © 2026. All Rights Reserved.</p>
+              <p><span className="notranslate" translate="no">Safeness transport</span> © 2026. All Rights Reserved.</p>
               <div className="flex gap-8">
                 <a href="#" className="hover:text-white/60 transition-colors">{t('legal')}</a>
                 <a href="#" className="hover:text-white/60 transition-colors">{t('privacy')}</a>

@@ -1823,7 +1823,7 @@ export default function App() {
       {/* BACKGROUND LAYER */}
       <div className="fixed inset-0 z-0">
         <img 
-          src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785515186/Image_4_w94pqy.jpg" 
+          src="https://res.cloudinary.com/ec9kwdkg/image/upload/f_auto,q_auto,w_1920/v1785515186/Image_4_w94pqy.jpg" 
           alt="Premium Service Background" 
           className="w-full h-full object-cover object-center"
           referrerPolicy="no-referrer"
@@ -1832,7 +1832,7 @@ export default function App() {
         <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-transparent to-stone-950/50"></div>
       </div>
 
-      {/* SCROLL TO THE ABSOLUT TOP OF THE PAGE (ABOVE HEADER & SPEC LOGO) */}
+      {/* SCROLL TO THE ABSOLUTE TOP OF THE PAGE (ABOVE HEADER & SPEC LOGO) */}
       <div id="top" className="absolute top-0 left-0 w-full h-0 pointer-events-none" />
       <div id="hero" className="absolute top-0 left-0 w-full h-0 pointer-events-none" />
 
@@ -2756,7 +2756,7 @@ export default function App() {
                     {/* Image 1: Portrait Interior */}
                     <div className="group relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] border border-white/10 aspect-[3/4] h-[384px] md:h-[420px] flex-shrink-0">
                       <img 
-                        src="https://images.unsplash.com/photo-1629019878688-f5d58a41b188?q=85&fm=jpg&crop=entropy&cs=srgb" 
+                        src="https://images.unsplash.com/photo-1629019878688-f5d58a41b188?auto=format&fit=crop&w=800&q=80" 
                         alt={t('gallery_img1_alt')} 
                         className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-105 opacity-90 group-hover:opacity-100"
                         referrerPolicy="no-referrer"
@@ -2778,7 +2778,7 @@ export default function App() {
                     {/* Image 3: Portrait End Detail */}
                     <div className="group relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] border border-white/10 aspect-[3/4] h-[384px] md:h-[420px] flex-shrink-0">
                       <img 
-                        src="https://images.unsplash.com/photo-1720731035872-7aa3708996c1?q=85&fm=jpg&crop=entropy&cs=srgb" 
+                        src="https://images.unsplash.com/photo-1720731035872-7aa3708996c1?auto=format&fit=crop&w=800&q=80" 
                         alt={t('gallery_img3_alt')} 
                         className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-105 opacity-90 group-hover:opacity-100"
                         referrerPolicy="no-referrer"

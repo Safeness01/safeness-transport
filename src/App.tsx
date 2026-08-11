@@ -9,7 +9,7 @@ import { Stripe, loadStripe } from '@stripe/stripe-js';
 import { setOptions, importLibrary } from '@googlemaps/js-api-loader';
 import { 
   MapPin, Navigation, Calendar, Clock, Users, User, Briefcase, Building2,
-  ChevronRight, ChevronLeft, ChevronDown, ArrowUpRight, Check, CreditCard, Plane, Tag, Sparkles, Palette,
+  ChevronRight, ChevronLeft, ChevronDown, ArrowUpRight, Check, CreditCard, Banknote, Plane, Tag, Sparkles, Palette,
   Train, Info, ShieldCheck, Star, ArrowRight, ArrowLeft, X, Menu, Plus,
   Phone, Mail, MessageSquare, Globe, Search, Loader2,
   Instagram, Facebook, ArrowLeftRight
@@ -237,9 +237,7 @@ export default function App() {
       isFirstRender.current = false;
       return;
     }
-    // Only scroll to form if we are moving to a configuration/payment step (step > 1)
-    // This solves the bug where it jumped to the form on initial site load
-    if (bookingRef.current && step > 1) {
+    if (bookingRef.current) {
       const yOffset = -20; // Reduced offset for tighter scroll
       const y = bookingRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
@@ -356,7 +354,7 @@ export default function App() {
     dropoffCoords: null as [number, number] | null,
     date: getLocalDateString(),
     time: '',
-    vehicle: 'business',
+    vehicle: 'eco',
     passengers: 1,
     luggage: 1,
     extras: [] as string[],
@@ -367,6 +365,7 @@ export default function App() {
     phone: '',
     flightNumber: '',
     paymentMethod: 'card',
+    onBoardPaymentType: 'cash' as 'cash' | 'card_on_board',
     isReturnTrip: false,
     returnPickup: '',
     returnDropoff: '',
@@ -559,16 +558,17 @@ export default function App() {
   };
 
   const vehicles = {
-    confort: { name: 'Confort Class', model: 'Tesla Model 3 / Y', basePrice: 70, hourlyPrice: 50, pax: 3, bag: 3, img: 'https://i.ibb.co/5gGysbdL/tesla.png' },
-    business: { name: 'Business Class', model: 'Mercedes Classe E', basePrice: 80, hourlyPrice: 60, pax: 3, bag: 3, img: 'https://i.ibb.co/DPTqpP5k/classe-e.png' },
-    van: { name: 'Business Van', model: 'Mercedes Classe V', basePrice: 120, hourlyPrice: 90, pax: 7, bag: 7, img: 'https://i.ibb.co/cK654DjV/classe-v.png' },
-    first: { name: 'First Class', model: 'Mercedes Classe S', basePrice: 160, hourlyPrice: 120, pax: 3, bag: 3, img: 'https://i.ibb.co/B7Vvx9F/classe-s.png' }
+    eco: { name: 'Économique', model: 'Toyota Corolla / Similaire', startFee: 30, kmPrice: 1.80, hourlyPrice: 40, pax: 3, bag: 3, img: 'https://i.ibb.co/N28Gcyq2/8b664312-319c-4f79-ae15-e418351b7070.png' },
+    tesla: { name: 'Tesla / BYD', model: 'Tesla Model 3 / Y, BYD', startFee: 40, kmPrice: 1.90, hourlyPrice: 50, pax: 3, bag: 3, img: 'https://i.ibb.co/5gGysbdL/tesla.png' },
+    business: { name: 'Mercedes Classe E', model: 'Mercedes-Benz Classe E', startFee: 50, kmPrice: 2.10, hourlyPrice: 60, pax: 3, bag: 3, img: 'https://i.ibb.co/DPTqpP5k/classe-e.png' },
+    van_v: { name: 'Mercedes Classe V', model: 'Mercedes-Benz Classe V', startFee: 55, kmPrice: 2.50, hourlyPrice: 90, pax: 7, bag: 7, img: 'https://i.ibb.co/cK654DjV/classe-v.png' },
+    first: { name: 'Mercedes Classe S', model: 'Mercedes-Benz Classe S', startFee: 70, kmPrice: 3.00, hourlyPrice: 120, pax: 3, bag: 3, img: 'https://i.ibb.co/B7Vvx9F/classe-s.png' }
   };
 
   const extras = {
-    child_seat: { name: 'Siège Bébé / Rehausseur', price: 15 },
-    greeter: { name: 'Accueil Pancarte', price: 30 },
-    extra_luggage: { name: 'Bagages Supplémentaires', price: 20 }
+    child_seat: { name: 'Siège Bébé', price: 5 },
+    booster_seat: { name: 'Réhausseur (Gratuit)', price: 0 },
+    extra_luggage: { name: 'Bagages Volumineux (>3)', price: 10 }
   };
 
   const translations = {
@@ -607,8 +607,11 @@ export default function App() {
       extras_label: 'Options Supplémentaires',
       payment: 'Mode de paiement',
       payment_mode: 'Mode de paiement',
-      card: 'Paiement en ligne (Stripe)',
-      cash: 'Espèces (à bord)',
+      card: 'Paiement en ligne',
+      cash: 'Paiement à bord',
+      on_board_payment_title: 'Mode de règlement à bord :',
+      cash_option: 'Espèces',
+      card_on_board_option: 'Carte bancaire',
       transfer: 'Virement (avance)',
       firstName: 'Prénom',
       lastName: 'Nom',
@@ -623,12 +626,17 @@ export default function App() {
       field_returnTime: 'Heure de retour',
       returnTime: 'Heure Retour',
       vehicle_confort: 'Gamme Confort',
-      vehicle_business: 'Business Class',
+      vehicle_eco: 'Économique',
+      vehicle_tesla: 'Tesla / BYD',
+      vehicle_business: 'Mercedes Classe E',
+      vehicle_van_std: 'Van Standard',
+      vehicle_van_v: 'Mercedes Classe V',
       vehicle_van: 'Business Van',
-      vehicle_first: 'First Class',
-      extra_child_seat: 'Siège Bébé / Rehausseur',
+      vehicle_first: 'Mercedes Classe S',
+      extra_child_seat: 'Siège Bébé',
+      extra_booster_seat: 'Réhausseur (Gratuit)',
       extra_greeter: 'Accueil Pancarte',
-      extra_extra_luggage: 'Bagages Supplémentaires',
+      extra_extra_luggage: 'Bagages Volumineux (>3)',
       success: 'Demande envoyée !',
       successMsg: 'Votre demande de réservation a été transmise. Un conseiller vous contactera par SMS ou Email pour confirmer la disponibilité.',
       newReservation: 'Nouvelle réservation',
@@ -717,6 +725,7 @@ export default function App() {
       corp_desc: 'Safeness Transport propose des comptes corporate sur-mesure pour les entreprises, les hôtels de luxe et les agences événementielles. Optimisez la gestion des déplacements de vos collaborateurs et de vos clients VIP avec un partenaire fiable.',
       corp_li1: 'Facturation simplifiée et relevés mensuels détaillés.',
       corp_li2: 'Priorité sur les réservations et support client dédié 24/7.',
+      corp_li3: 'Coordination complète pour vos roadshows et grands événements.',
       corp_cta: 'Contact pour transferts entreprises',
       contact_pro: 'Contact Pro',
       vip_tag: 'En approche',
@@ -841,8 +850,11 @@ export default function App() {
       extras_label: 'Additional Options',
       payment: 'Payment Method',
       payment_mode: 'Payment Method',
-      card: 'Online Payment (Stripe)',
-      cash: 'Cash (on board)',
+      card: 'Online Payment',
+      cash: 'Payment on board',
+      on_board_payment_title: 'Payment method on board:',
+      cash_option: 'Cash',
+      card_on_board_option: 'Credit Card',
       transfer: 'Bank Transfer (advance)',
       firstName: 'First Name',
       lastName: 'Last Name',
@@ -857,12 +869,17 @@ export default function App() {
       field_returnTime: 'Return time',
       returnTime: 'Return Time',
       vehicle_confort: 'Confort Class',
-      vehicle_business: 'Business Class',
+      vehicle_eco: 'Economy',
+      vehicle_tesla: 'Tesla / BYD',
+      vehicle_business: 'Mercedes E-Class',
+      vehicle_van_std: 'Standard Van',
+      vehicle_van_v: 'Mercedes V-Class',
       vehicle_van: 'Business Van',
-      vehicle_first: 'First Class',
-      extra_child_seat: 'Child Seat / Booster',
+      vehicle_first: 'Mercedes S-Class',
+      extra_child_seat: 'Child Seat',
+      extra_booster_seat: 'Booster Seat (Free)',
       extra_greeter: 'Meet & Greet (Sign)',
-      extra_extra_luggage: 'Extra Luggage',
+      extra_extra_luggage: 'Large Luggage (>3)',
       success: 'Request Sent!',
       successMsg: 'Your booking request has been transmitted. A consultant will contact you via SMS or Email to confirm availability.',
       newReservation: 'New booking',
@@ -951,6 +968,7 @@ export default function App() {
       corp_desc: 'Safeness Transport offers bespoke corporate accounts for companies, luxury hotels and event agencies. Optimize the management of your employees and VIP clients travels with a reliable partner.',
       corp_li1: 'Simplified billing and detailed monthly statements.',
       corp_li2: 'Priority on bookings and dedicated 24/7 client support.',
+      corp_li3: 'Complete coordination for your roadshows and major events.',
       corp_cta: 'Contact us for corporate transfers',
       contact_pro: 'Contact Pro',
       vip_tag: 'Inbound',
@@ -1075,8 +1093,11 @@ export default function App() {
       extras_label: 'Opciones adicionales',
       payment: 'Método de pago',
       payment_mode: 'Método de pago',
-      card: 'Pago en línea (Stripe)',
-      cash: 'Efectivo (a bordo)',
+      card: 'Pago en línea',
+      cash: 'Pago a bordo',
+      on_board_payment_title: 'Forma de pago a bordo:',
+      cash_option: 'Efectivo',
+      card_on_board_option: 'Tarjeta bancaria',
       transfer: 'Transferencia bancaria (adelantado)',
       firstName: 'Nombre',
       lastName: 'Apellido',
@@ -1091,12 +1112,17 @@ export default function App() {
       field_returnTime: 'Hora de vuelta',
       returnTime: 'Hora de vuelta',
       vehicle_confort: 'Confort Class',
-      vehicle_business: 'Business Class',
+      vehicle_eco: 'Gama Económica',
+      vehicle_tesla: 'Tesla / BYD',
+      vehicle_business: 'Mercedes Clase E',
+      vehicle_van_std: 'Van Estándar',
+      vehicle_van_v: 'Mercedes Clase V',
       vehicle_van: 'Business Van',
-      vehicle_first: 'First Class',
-      extra_child_seat: 'Silla de bebé / Elevador',
+      vehicle_first: 'Mercedes Clase S',
+      extra_child_seat: 'Silla de Bebé',
+      extra_booster_seat: 'Elevador (Gratis)',
       extra_greeter: 'Bienvenida con cartel',
-      extra_extra_luggage: 'Equipaje adicional',
+      extra_extra_luggage: 'Equipaje Voluminoso (>3)',
       success: '¡Solicitud enviada!',
       successMsg: 'Su solicitud de reserva ha sido enviada. Un asesor se pondrá en contacto con usted por SMS o correo electrónico para confirmar la disponibilidad.',
       newReservation: 'Nueva reserva',
@@ -1185,6 +1211,7 @@ export default function App() {
       corp_desc: 'Safeness Transport ofrece cuentas corporativas a medida para empresas, hoteles de lujo y agencias de eventos. Optimice la gestión de los viajes de sus colaboradores y clientes VIP con un socio de confianza.',
       corp_li1: 'Facturación simplificada y estados de cuenta mensuales detallados.',
       corp_li2: 'Prioridad en las reservas y soporte al cliente dedicado 24/7.',
+      corp_li3: 'Coordinación completa para sus roadshows y grandes eventos.',
       corp_cta: 'Contacto para traslados de empresas',
       contact_pro: 'Contacto Pro',
       vip_tag: 'En aproximación',
@@ -1575,34 +1602,68 @@ export default function App() {
     }
   };
 
-  const totalPrice = useMemo(() => {
-    const vehicle = (vehicles as any)[bookingData.vehicle];
-    let price = 0;
-    
-    if (bookingData.serviceType === 'hourly') {
-      price = vehicle.hourlyPrice * bookingData.durationHours;
+  const calculateVehiclePrice = useCallback((
+    vehicleKey: string,
+    data: {
+      distance: number;
+      serviceType: 'transfer' | 'hourly';
+      durationHours: number;
+      time: string;
+      isReturnTrip: boolean;
+      extras: string[];
+      luggage: number;
+    }
+  ) => {
+    const v = (vehicles as any)[vehicleKey];
+    if (!v) return 0;
+
+    let baseTripPrice = 0;
+
+    if (data.serviceType === 'hourly') {
+      baseTripPrice = (v.hourlyPrice || 50) * (data.durationHours || 2);
     } else {
-      price = vehicle.basePrice;
-      // Distance pricing (simplified: base + 2€/km after 10km)
-      if (bookingData.distance > 10) {
-        price += (bookingData.distance - 10) * 2;
-      }
-      
-      // Return trip multiplier (only for transfer)
-      if (bookingData.isReturnTrip) price *= 2;
+      // Formule de base : Prix = Forfait Départ + (Distance en km × Prix au km)
+      const km = data.distance || 0;
+      baseTripPrice = v.startFee + (km * v.kmPrice);
     }
 
-    // Extras
-    bookingData.extras.forEach(extraKey => {
-      price += (extras as any)[extraKey].price;
-    });
+    // Majoration de Nuit (22h00 - 06h00) : +20% sur le trajet
+    let hour = -1;
+    if (data.time) {
+      const match = data.time.match(/^(\d{1,2}):/);
+      if (match) {
+        hour = parseInt(match[1], 10);
+      }
+    }
+    const isNight = hour >= 0 && (hour >= 22 || hour < 6);
+    if (isNight) {
+      baseTripPrice *= 1.20;
+    }
 
-    // Night/Weekend surcharge (mock logic)
-    const hour = parseInt(bookingData.time.split(':')[0]);
-    if (hour >= 21 || hour <= 6) price *= 1.2;
+    // Option Aller-Retour : Calcul de l'aller + retour avec -10% de remise globale
+    if (data.serviceType === 'transfer' && data.isReturnTrip) {
+      baseTripPrice = (baseTripPrice * 2) * 0.90;
+    }
 
-    return Math.round(price);
-  }, [bookingData.vehicle, bookingData.distance, bookingData.durationHours, bookingData.serviceType, bookingData.extras, bookingData.time, bookingData.isReturnTrip]);
+    // Options Supplémentaires
+    let extrasPrice = 0;
+    if (data.extras.includes('child_seat')) {
+      extrasPrice += 5; // Siège bébé +5 €
+    }
+    if (data.extras.includes('booster_seat')) {
+      extrasPrice += 0; // Réhausseur Gratuit
+    }
+    if (data.extras.includes('extra_luggage') || data.luggage > 3) {
+      extrasPrice += 10; // Bagages volumineux (> 3 bagages) +10 €
+    }
+
+    const finalTotal = baseTripPrice + extrasPrice;
+    return Math.round(finalTotal * 100) / 100;
+  }, [vehicles]);
+
+  const totalPrice = useMemo(() => {
+    return calculateVehiclePrice(bookingData.vehicle, bookingData);
+  }, [calculateVehiclePrice, bookingData]);
 
   const handleBooking = async () => {
     // Check contact form validity
@@ -1659,10 +1720,45 @@ export default function App() {
         setLoading(false);
       }
     } else {
-      // Mock logic for other payment methods (e.g., cash)
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setStep(4);
-      setLoading(false);
+      try {
+        const response = await fetch("/api/cash-booking", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            serviceType: bookingData.serviceType,
+            serviceCategory: bookingData.serviceCategory,
+            durationHours: bookingData.durationHours,
+            vehicle: bookingData.vehicle,
+            distance: bookingData.distance,
+            extras: bookingData.extras,
+            time: bookingData.time,
+            isReturnTrip: bookingData.isReturnTrip,
+            pickup: bookingData.pickup,
+            dropoff: bookingData.serviceType === 'transfer' ? bookingData.dropoff : 'Mise à disposition',
+            firstName: bookingData.firstName,
+            lastName: bookingData.lastName,
+            email: bookingData.email,
+            phone: `${bookingData.countryCode} ${bookingData.phone}`,
+            passengers: bookingData.passengers,
+            luggage: bookingData.luggage,
+            flightNumber: bookingData.flightNumber,
+            paymentMethod: bookingData.paymentMethod === 'card' ? 'card' : bookingData.onBoardPaymentType,
+            lang: lang,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.warn("Cash booking email notice:", errorData.error);
+        }
+      } catch (error) {
+        console.error("Failed to send cash booking email:", error);
+      } finally {
+        setStep(4);
+        setLoading(false);
+      }
     }
   };
 
@@ -2482,6 +2578,10 @@ export default function App() {
                     <SolarCheckCircleLinear size={20} className="text-white mt-1 shrink-0" strokeWidth={1.5} />
                     <span className="font-normal text-[15px]">{t('corp_li2')}</span>
                   </li>
+                  <li className="flex items-start gap-3 text-stone-200">
+                    <SolarCheckCircleLinear size={20} className="text-white mt-1 shrink-0" strokeWidth={1.5} />
+                    <span className="font-normal text-[15px]">{t('corp_li3')}</span>
+                  </li>
                 </ul>
                 <a href="#hero" className="flex text-base text-white font-normal border-b border-white/20 pb-1 w-fit hover:border-white transition-colors items-center gap-2">
                   {t('corp_cta')}
@@ -3122,7 +3222,7 @@ export default function App() {
                         <button 
                           onClick={handleNextStep1}
                           disabled={loading}
-                          className="w-full bg-stone-900 text-white py-[19px] md:py-[21px] rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-stone-800 transition-all shadow-lg shadow-stone-200 disabled:opacity-50"
+                          className="w-full bg-stone-900 text-white py-4 md:py-5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-stone-800 transition-all shadow-lg shadow-stone-200 disabled:opacity-50"
                         >
                           {loading ? (
                             <Loader2 className="animate-spin" size={20} />
@@ -3180,7 +3280,7 @@ export default function App() {
                             </div>
                             <div className="text-right shrink-0">
                               <div className="text-lg md:text-xl font-bold text-stone-900">
-                                {Math.round(vehicle.basePrice + (bookingData.distance > 10 ? (bookingData.distance - 10) * 2 : 0))}€
+                                {calculateVehiclePrice(key, bookingData).toFixed(2)} €
                               </div>
                             </div>
                           </button>
@@ -3213,17 +3313,17 @@ export default function App() {
                         </div>
                       </div>
 
-                      <div className="flex gap-4">
+                      <div className="flex gap-4 items-stretch">
                         <button 
                           onClick={() => setStep(1)}
-                          className="w-14 h-12 md:h-14 bg-stone-100 text-stone-600 rounded-xl flex items-center justify-center hover:bg-stone-200 transition-all shrink-0"
+                          className="w-14 bg-stone-100 text-stone-600 rounded-xl flex items-center justify-center hover:bg-stone-200 transition-all shrink-0 py-4 md:py-5"
                           title={t('back')}
                         >
                           <ChevronLeft size={20} />
                         </button>
                         <button 
                           onClick={() => setStep(3)}
-                          className="flex-1 bg-stone-900 text-white py-3 md:py-4 rounded-xl font-bold hover:bg-stone-800 transition-all shadow-lg shadow-stone-200 flex items-center justify-center gap-2"
+                          className="flex-1 bg-stone-900 text-white py-4 md:py-5 rounded-xl font-bold hover:bg-stone-800 transition-all shadow-lg shadow-stone-200 flex items-center justify-center gap-2"
                         >
                           {t('next')}
                           <ArrowRight size={18} />
@@ -3310,15 +3410,15 @@ export default function App() {
                       <div className="grid grid-cols-2 gap-3 md:gap-4">
                         {/* Passengers Selector */}
                         <div className="space-y-2 relative flex flex-col">
-                          <label className="text-xs font-bold text-stone-900 uppercase tracking-wider ml-1">
-                            {t('passengers')}
+                          <label className="text-xs font-bold text-stone-900 uppercase tracking-wider ml-1 flex items-center gap-1.5">
+                            <Users size={14} className="text-stone-800 shrink-0" />
+                            <span>{t('passengers')}</span>
                           </label>
                           <div className="relative flex items-center border border-stone-300 rounded-xl bg-stone-50 overflow-hidden focus-within:border-stone-900 focus-within:bg-white transition-all">
-                            <Users size={18} className="absolute left-4 text-stone-800 pointer-events-none" />
                             <select 
                               value={bookingData.passengers}
                               onChange={(e) => setBookingData(prev => ({ ...prev, passengers: parseInt(e.target.value) }))}
-                              className="w-full bg-transparent border-none py-3 md:py-4 pl-12 pr-10 font-semibold focus:ring-0 outline-none appearance-none cursor-pointer text-stone-950"
+                              className="w-full bg-transparent border-none py-3 md:py-4 pl-4 pr-10 font-semibold focus:ring-0 outline-none appearance-none cursor-pointer text-stone-950"
                             >
                               {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
                                 <option key={n} value={n} className="text-stone-950 bg-white font-semibold">
@@ -3334,15 +3434,15 @@ export default function App() {
 
                         {/* Luggage Selector */}
                         <div className="space-y-2 relative flex flex-col">
-                          <label className="text-xs font-bold text-stone-900 uppercase tracking-wider ml-1">
-                            {t('luggage')}
+                          <label className="text-xs font-bold text-stone-900 uppercase tracking-wider ml-1 flex items-center gap-1.5">
+                            <Briefcase size={14} className="text-stone-800 shrink-0" />
+                            <span>{t('luggage')}</span>
                           </label>
                           <div className="relative flex items-center border border-stone-300 rounded-xl bg-stone-50 overflow-hidden focus-within:border-stone-900 focus-within:bg-white transition-all">
-                            <Briefcase size={18} className="absolute left-4 text-stone-800 pointer-events-none" />
                             <select 
                               value={bookingData.luggage}
                               onChange={(e) => setBookingData(prev => ({ ...prev, luggage: parseInt(e.target.value) }))}
-                              className="w-full bg-transparent border-none py-3 md:py-4 pl-12 pr-10 font-semibold focus:ring-0 outline-none appearance-none cursor-pointer text-stone-950"
+                              className="w-full bg-transparent border-none py-3 md:py-4 pl-4 pr-10 font-semibold focus:ring-0 outline-none appearance-none cursor-pointer text-stone-950"
                             >
                               {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
                                 <option key={n} value={n} className="text-stone-950 bg-white font-semibold">
@@ -3369,28 +3469,85 @@ export default function App() {
                       </div>
 
                       <div className="space-y-4 pt-6 border-t border-stone-100">
-                        <label className="text-xs font-bold text-stone-900 uppercase tracking-wider ml-1">{t('payment_mode')}</label>
-                        <div className="grid grid-cols-2 gap-3">
-                          {[
-                            { id: 'card', name: t('card'), icon: CreditCard },
-                            { id: 'cash', name: t('cash'), icon: Users }
-                          ].map((method) => (
+                        <div className="p-4 bg-stone-50 border border-stone-200 rounded-xl space-y-3">
+                          <label className="text-xs font-bold text-stone-800 uppercase tracking-wider block">
+                            {t('payment_mode')}
+                          </label>
+                          <div className="grid grid-cols-2 gap-2 items-stretch">
+                            {/* Option 1: Online Payment */}
                             <button 
-                              key={method.id}
-                              onClick={() => setBookingData(prev => ({ ...prev, paymentMethod: method.id }))}
-                              className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${bookingData.paymentMethod === method.id ? 'border-stone-900 bg-stone-50' : 'border-stone-100 bg-white hover:border-stone-200'}`}
+                              type="button"
+                              onClick={() => setBookingData(prev => ({ ...prev, paymentMethod: 'card' }))}
+                              className={`flex flex-col items-center justify-center gap-1.5 py-4.5 px-3 sm:py-4 rounded-lg text-[11px] sm:text-xs transition-all border cursor-pointer w-full h-full min-h-[68px] sm:min-h-[60px] ${
+                                bookingData.paymentMethod === 'card' 
+                                  ? 'bg-white text-stone-900 border-stone-800 ring-1 ring-stone-800 shadow-sm font-extrabold' 
+                                  : 'bg-white text-stone-600 border-stone-200 hover:border-stone-400 font-medium'
+                              }`}
                             >
-                              <method.icon size={20} className={bookingData.paymentMethod === method.id ? 'text-stone-900' : 'text-stone-400'} />
-                              <span className={`text-[10px] font-bold uppercase tracking-wider ${bookingData.paymentMethod === method.id ? 'text-stone-900' : 'text-stone-400'}`}>{method.name}</span>
+                              <div className="flex items-center justify-center gap-1.5 my-0.5">
+                                {/* Visa Logo */}
+                                <svg className="h-2.5 w-auto shrink-0" viewBox="0 0 36 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M13.927 0.28L9.124 11.712H6.108L3.69 2.502C3.543 1.922 3.4 1.705 2.969 1.464C2.261 1.077 1.058 0.71 0 0.473L0.061 0.280H5.118C5.772 0.280 6.34 0.718 6.48 1.436L7.728 8.087L10.741 0.280H13.927ZM26.064 8.243C26.077 5.103 21.724 4.928 21.753 3.518C21.763 3.09 22.181 2.628 23.09 2.504C23.542 2.443 24.8 2.392 26.113 2.997L26.657 0.468C25.914 0.201 24.953 0 23.754 0C20.857 0 18.817 1.54 18.8 3.737C18.777 5.367 20.252 6.273 21.36 6.814C22.5 7.37 22.884 7.726 22.877 8.225C22.863 8.988 21.956 9.328 21.088 9.34C19.61 9.362 18.75 8.932 18.064 8.618L17.502 11.238C18.266 11.589 19.68 11.888 21.139 11.905C24.238 11.905 26.049 10.372 26.064 8.243ZM33.722 11.712H36L34.015 0.28H31.936C31.298 0.28 30.76 0.651 30.524 1.218L26.082 11.712H29.245L29.878 9.967H33.407L33.722 11.712ZM30.766 7.525L32.222 3.518L33.057 7.525H30.766ZM18.232 0.28L15.753 11.712H12.736L15.215 0.28H18.232Z" fill="#1434CB"/>
+                                </svg>
+                                {/* Mastercard Logo */}
+                                <svg className="h-3 w-auto shrink-0" viewBox="0 0 24 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <circle cx="7" cy="8" r="6" fill="#EB001B"/>
+                                  <circle cx="17" cy="8" r="6" fill="#F79E1B"/>
+                                  <path fill="#FF5F00" d="M12 2.82A6 6 0 0 1 12 13.18 6 6 0 0 1 12 2.82z"/>
+                                </svg>
+                              </div>
+                              <span className="text-center leading-tight uppercase font-bold tracking-wider">{t('card')}</span>
                             </button>
-                          ))}
+
+                            {/* Option 2: Payment on Board (The button itself is the selector dropdown) */}
+                            <div className="relative flex items-center justify-center w-full h-full">
+                              <div 
+                                className={`w-full h-full flex flex-col items-center justify-center gap-1.5 py-4.5 px-3 sm:py-4 rounded-lg text-[11px] sm:text-xs transition-all border pointer-events-none relative min-h-[68px] sm:min-h-[60px] ${
+                                  bookingData.paymentMethod === 'cash' 
+                                    ? 'bg-white text-stone-900 border-stone-800 ring-1 ring-stone-800 shadow-sm font-extrabold' 
+                                    : 'bg-white text-stone-600 border-stone-200 hover:border-stone-400 font-medium'
+                                }`}
+                              >
+                                <ChevronDown size={14} className="text-stone-400 absolute right-2 top-2" />
+                                <div className="flex items-center justify-center gap-1.5 my-0.5 shrink-0">
+                                  {/* Cash bill vector graphic */}
+                                  <svg className="h-3 w-auto shrink-0 text-stone-900" viewBox="0 0 28 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="1" y="1" width="26" height="16" rx="3" fill="currentColor" fillOpacity="0.08" stroke="currentColor" strokeWidth="1.75"/>
+                                    <circle cx="14" cy="9" r="3" stroke="currentColor" strokeWidth="1.75"/>
+                                    <path d="M5 5.5H6.5M21.5 5.5H23M5 12.5H6.5M21.5 12.5H23" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round"/>
+                                  </svg>
+                                </div>
+                                <span className="text-center leading-tight uppercase font-bold tracking-wider">
+                                  {bookingData.paymentMethod === 'cash' 
+                                    ? `${t('cash')} (${bookingData.onBoardPaymentType === 'card_on_board' ? t('card_on_board_option') : t('cash_option')})`
+                                    : t('cash')}
+                                </span>
+                              </div>
+                              <select
+                                value={bookingData.paymentMethod === 'cash' ? bookingData.onBoardPaymentType : 'default'}
+                                onChange={(e) => {
+                                  const val = e.target.value as 'cash' | 'card_on_board';
+                                  setBookingData(prev => ({ 
+                                    ...prev, 
+                                    paymentMethod: 'cash', 
+                                    onBoardPaymentType: val 
+                                  }));
+                                }}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                              >
+                                <option value="default" disabled hidden>{t('cash')}</option>
+                                <option value="cash">{t('cash')} : {t('cash_option')}</option>
+                                <option value="card_on_board">{t('cash')} : {t('card_on_board_option')}</option>
+                              </select>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="flex gap-4">
+                      <div className="flex gap-4 items-stretch">
                         <button 
                           onClick={() => setStep(2)}
-                          className="w-14 h-11 md:h-12 bg-stone-100 text-stone-600 rounded-xl flex items-center justify-center hover:bg-stone-200 transition-all shrink-0"
+                          className="w-14 bg-stone-100 text-stone-600 rounded-xl flex items-center justify-center hover:bg-stone-200 transition-all shrink-0 py-4 md:py-5"
                           title={t('back')}
                         >
                           <ChevronLeft size={20} />
@@ -3443,6 +3600,7 @@ export default function App() {
                             phone: '',
                             flightNumber: '',
                             paymentMethod: 'card',
+                            onBoardPaymentType: 'cash',
                             isReturnTrip: false,
                             returnPickup: '',
                             returnDropoff: '',
@@ -3638,7 +3796,7 @@ export default function App() {
             
             <div className="w-full h-px bg-white/5 mb-14 relative flex items-center justify-center">
               <div className="px-6 bg-stone-950 flex gap-4 absolute">
-                <a href="mailto:safeness.transport@yahoo.com" className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:border-white/40 transition-all bg-stone-950">
+                <a href="mailto:contact@safeness-transport.com" className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:border-white/40 transition-all bg-stone-950">
                   <iconify-icon icon="solar:letter-linear" width="20" style={{ strokeWidth: 1.5 }}></iconify-icon>
                 </a>
                 <a href="tel:+33782274920" className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:border-white/40 transition-all bg-stone-950">

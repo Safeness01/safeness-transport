@@ -11,17 +11,22 @@ const getStripe = () => {
   });
 };
 
-const vehicles = {
-  confort: { name: "Confort Class", basePrice: 70 },
-  business: { name: "Business Class", basePrice: 80 },
-  van: { name: "Business Van", basePrice: 120 },
-  first: { name: "First Class", basePrice: 160 },
+const vehicles: Record<string, { name: string; startFee: number; kmPrice: number; hourlyPrice: number }> = {
+  eco: { name: "Économique", startFee: 30, kmPrice: 1.80, hourlyPrice: 40 },
+  tesla: { name: "Tesla / BYD", startFee: 40, kmPrice: 1.90, hourlyPrice: 50 },
+  business: { name: "Mercedes Classe E", startFee: 50, kmPrice: 2.10, hourlyPrice: 60 },
+  van_v: { name: "Mercedes Classe V", startFee: 55, kmPrice: 2.50, hourlyPrice: 90 },
+  first: { name: "Mercedes Classe S", startFee: 70, kmPrice: 3.00, hourlyPrice: 120 },
+  // legacy fallback keys
+  confort: { name: "Confort Class", startFee: 40, kmPrice: 1.90, hourlyPrice: 50 },
+  van: { name: "Business Van", startFee: 55, kmPrice: 2.50, hourlyPrice: 90 },
 };
 
 const extrasList = {
-  child_seat: { price: 15 },
+  child_seat: { price: 5 },
+  booster_seat: { price: 0 },
+  extra_luggage: { price: 10 },
   greeter: { price: 30 },
-  extra_luggage: { price: 20 },
 };
 
 interface CheckoutRequestBody {
@@ -63,49 +68,45 @@ export default async function handler(req: Request, res: Response) {
     }
 
     // Calculation logic (matching App.tsx)
-    const selectedVehicle = (vehicles as any)[vehicle];
-    const vehicleConfig = {
-      confort: { hourlyPrice: 50 },
-      business: { hourlyPrice: 60 },
-      van: { hourlyPrice: 90 },
-      first: { hourlyPrice: 120 }
-    };
+    const selectedVehicle = vehicles[vehicle] || vehicles.eco;
     
-    let calculatedPrice = 0;
+    let baseTripPrice = 0;
     
     if (serviceType === 'hourly') {
-      const hourlyPrice = (vehicleConfig as any)[vehicle].hourlyPrice;
-      calculatedPrice = hourlyPrice * (durationHours || 2);
+      baseTripPrice = selectedVehicle.hourlyPrice * (durationHours || 2);
     } else {
-      calculatedPrice = selectedVehicle.basePrice;
-      // Distance pricing: base + 2€/km after 10km
-      if (distance > 10) {
-        calculatedPrice += (distance - 10) * 2;
+      // Formule de base: Forfait Départ + (Distance km * Prix/km)
+      baseTripPrice = selectedVehicle.startFee + ((distance || 0) * selectedVehicle.kmPrice);
+    }
+
+    // Majoration de Nuit (22h00 - 06h00) : +20% sur le trajet
+    if (time) {
+      const match = time.match(/^(\d{1,2}):/);
+      if (match) {
+        const hour = parseInt(match[1], 10);
+        if (hour >= 22 || hour < 6) {
+          baseTripPrice *= 1.20;
+        }
       }
-      
-      // Double for return trip (only for transfer)
-      if (isReturnTrip) {
-        calculatedPrice *= 2;
-      }
+    }
+
+    // Option Aller-Retour : Calcul de l'aller + retour avec -10% de remise globale
+    if (serviceType === 'transfer' && isReturnTrip) {
+      baseTripPrice = (baseTripPrice * 2) * 0.90;
     }
 
     // Extras
+    let extrasPrice = 0;
     if (Array.isArray(extras)) {
-      extras.forEach((extraKey: string) => {
-        if ((extrasList as any)[extraKey]) {
-          calculatedPrice += (extrasList as any)[extraKey].price;
-        }
-      });
+      if (extras.includes('child_seat')) extrasPrice += 5;
+      if (extras.includes('booster_seat')) extrasPrice += 0;
+      if (extras.includes('extra_luggage') || (luggage && luggage > 3)) extrasPrice += 10;
+      if (extras.includes('greeter')) extrasPrice += 30;
+    } else if (luggage && luggage > 3) {
+      extrasPrice += 10;
     }
 
-    // Night surcharge (21h - 06h)
-    if (time) {
-      const hour = parseInt(time.split(":")[0]);
-      if (hour >= 21 || hour <= 6) {
-        calculatedPrice *= 1.2;
-      }
-    }
-
+    const calculatedPrice = baseTripPrice + extrasPrice;
     const finalAmount = Math.round(calculatedPrice);
 
     const stripe = getStripe();

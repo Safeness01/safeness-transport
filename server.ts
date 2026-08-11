@@ -9,6 +9,7 @@ import fs from "fs";
 import checkoutHandler from "./api/checkout.ts";
 import webhookHandler from "./api/webhook.ts";
 import verifyHandler from "./api/verify-session.ts";
+import cashBookingHandler from "./api/cash-booking.ts";
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ async function startServer() {
 
   // API Routes
   app.post("/api/checkout", checkoutHandler);
+  app.post("/api/cash-booking", cashBookingHandler);
   app.all("/api/webhook", webhookHandler);
   app.get("/api/verify-session", verifyHandler);
   

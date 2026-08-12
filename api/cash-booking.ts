@@ -134,7 +134,7 @@ export default async function handler(req: Request, res: Response) {
     // 2. Email for admin notification
     await resend.emails.send({
       from: "Safeness Transport <contact@safeness-transport.com>",
-      to: "contact@safeness-transport.com",
+      to: "safeness.transport@yahoo.com",
       subject: `🚨 Nouvelle réservation à bord (Cash) - ${firstName} ${lastName}`,
       html: `
         <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; line-height: 1.6;">

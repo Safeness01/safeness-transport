@@ -43,6 +43,7 @@ export const PartnerLogos = memo(function PartnerLogos() {
           gradientColor="#1c1917"
           gradientWidth={100}
           direction="left"
+          autoFill={true}
         >
           {MULTIPLIED_LOGOS.map((logo, index) => (
             <img
@@ -50,6 +51,7 @@ export const PartnerLogos = memo(function PartnerLogos() {
               src={logo.src}
               alt={logo.name}
               className={logo.className}
+              loading="eager"
             />
           ))}
         </Marquee>

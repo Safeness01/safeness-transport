@@ -99,26 +99,8 @@ export default async function handler(req: Request, res: Response) {
         // Email for the admin
         await resend.emails.send({
           from: "SAFENESS transport <contact@safeness-transport.com>",
-          to: "safeness.transport@yahoo.com", // Adress to notify
+          to: "contact@safeness-transport.com", // Adress to notify
           subject: "Nouvelle réservation confirmée !",
-          text: `Nouvelle réservation reçue (${metadata.serviceType === 'hourly' ? 'Mise à disposition' : 'Transfert'})
-
-Un client vient de payer une réservation :
-
-Client : ${metadata.firstName} ${metadata.lastName}
-Email : ${metadata.email}
-Téléphone : ${metadata.phone}
-Numéro de vol/train : ${metadata.flightNumber}
-
-Départ : ${metadata.pickup}
-${metadata.serviceType === 'hourly' ? `Durée : ${metadata.durationHours} heures` : `Arrivée : ${metadata.dropoff}`}
-Date/Heure : ${metadata.time}
-Véhicule : ${metadata.vehicle}
-Passagers : ${metadata.passengers}
-Bagages : ${metadata.luggage}
-Extras : ${metadata.extras}
-${metadata.serviceType === 'transfer' ? `Trajet retour : ${metadata.isReturnTrip === 'true' ? 'Oui' : 'Non'}\n` : ''}
-Montant payé : ${amount} €`,
           html: `
             <div style="font-family: sans-serif; color: #333;">
               <h1>Nouvelle réservation reçue (${metadata.serviceType === 'hourly' ? 'Mise à disposition' : 'Transfert'})</h1>

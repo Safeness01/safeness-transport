@@ -4,7 +4,6 @@
  */
 
 import { useEffect, useState, useRef, useMemo, useCallback, Fragment } from 'react';
-import { PartnerLogos } from './components/PartnerLogos';
 import { motion, AnimatePresence } from 'motion/react';
 import { Stripe, loadStripe } from '@stripe/stripe-js';
 import { setOptions, importLibrary } from '@googlemaps/js-api-loader';
@@ -1994,7 +1993,27 @@ export default function App() {
             <p className="uppercase tracking-[0.15em] mb-1">Est. 2018,</p>
             <h3 className="text-4xl md:text-5xl font-semibold tracking-tight uppercase text-white/90">Excellence</h3>
           </div>
-          <PartnerLogos />
+          <div className="w-full pt-16 border-t border-white/5 relative">
+            <p className="text-xs font-normal text-white/50 tracking-[0.2em] mb-12 uppercase">Corporate Partners</p>
+            
+            {/* Infinite Marquee */}
+            <div className="relative flex overflow-hidden w-full">
+              <div className="animate-marquee flex whitespace-nowrap w-max">
+                <div className="flex items-center gap-12 md:gap-24 px-6 md:px-12 flex-none">
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410691/1200px-Vaisala_logo.svg_u59jsu.png" alt="Uniformation" className="h-6 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410691/2560px-Prada-Logo.svg-1024x159-1_uyx0zd.webp" alt="Prada" className="h-4 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410691/1200px-Vaisala_logo.svg_u59jsu.png" alt="Vaisala" className="h-6 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410692/ETSGlobal_logo.a83452a9_xxbkm6.png" alt="ETS Global" className="h-8 object-contain brightness-0 invert opacity-60" />
+                </div>
+                <div className="flex items-center gap-12 md:gap-24 px-6 md:px-12 flex-none">
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410691/1200px-Vaisala_logo.svg_u59jsu.png" alt="Uniformation" className="h-6 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410691/2560px-Prada-Logo.svg-1024x159-1_uyx0zd.webp" alt="Prada" className="h-4 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410691/1200px-Vaisala_logo.svg_u59jsu.png" alt="Vaisala" className="h-6 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410692/ETSGlobal_logo.a83452a9_xxbkm6.png" alt="ETS Global" className="h-8 object-contain brightness-0 invert opacity-60" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* COUVERTURE EUROPE - REDESIGNED BENTO GRID */}

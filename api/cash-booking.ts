@@ -134,28 +134,8 @@ export default async function handler(req: Request, res: Response) {
     // 2. Email for admin notification
     await resend.emails.send({
       from: "Safeness Transport <contact@safeness-transport.com>",
-      to: "safeness.transport@yahoo.com",
-      subject: `Nouvelle réservation à bord (Cash) - ${firstName} ${lastName}`,
-      text: `Nouvelle demande de réservation (${paymentLabel})
-
-Informations client :
-Client : ${firstName} ${lastName}
-Email : ${email}
-Téléphone : ${phone}
-N° Vol / Train : ${flightNumber || 'Non renseigné'}
-
-Détails du trajet :
-Type : ${serviceType === 'hourly' ? 'Mise à disposition' : 'Transfert'}
-Départ : ${pickup}
-${serviceType === 'hourly' ? `Durée : ${durationHours} heures` : `Arrivée : ${dropoff}`}
-Date / Heure : ${time}
-Véhicule : ${selectedVehicle.name}
-Passagers : ${passengers}
-Bagages : ${luggage}
-Extras : ${extrasText}
-${serviceType === 'transfer' ? `Trajet retour : ${isReturnTrip ? 'Oui' : 'Non'}\n` : ''}
-Mode de paiement : ${paymentLabel}
-Montant estimé : ${finalAmount} €`,
+      to: "contact@safeness-transport.com",
+      subject: `🚨 Nouvelle réservation à bord (Cash) - ${firstName} ${lastName}`,
       html: `
         <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; line-height: 1.6;">
           <h1 style="color: #000; border-bottom: 2px solid #eee; padding-bottom: 10px;">Nouvelle demande de réservation (${paymentLabel})</h1>

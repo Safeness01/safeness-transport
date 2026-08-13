@@ -27,7 +27,6 @@
     "react": "^19.0.0",
     "react-datepicker": "^9.1.0",
     "react-dom": "^19.0.0",
-    "react-fast-marquee": "^1.6.5",
     "resend": "^6.12.2",
     "stripe": "latest",
     "vite": "^6.2.0"

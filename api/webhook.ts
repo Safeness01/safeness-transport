@@ -126,6 +126,28 @@ export default async function handler(req: Request, res: Response) {
               <p><strong>Montant payé :</strong> ${amount} €</p>
             </div>
           `,
+          text: `Nouvelle réservation reçue (${metadata.serviceType === 'hourly' ? 'Mise à disposition' : 'Transfert'})
+
+Un client vient de payer une réservation :
+--
+Client : ${metadata.firstName} ${metadata.lastName}
+Email : ${metadata.email}
+Téléphone : ${metadata.phone}
+Numéro de vol/train : ${metadata.flightNumber}
+--
+Départ : ${metadata.pickup}
+${metadata.serviceType === 'hourly' 
+  ? `Durée : ${metadata.durationHours} heures`
+  : `Arrivée : ${metadata.dropoff}`
+}
+Date/Heure : ${metadata.time}
+Véhicule : ${metadata.vehicle}
+Passagers : ${metadata.passengers}
+Bagages : ${metadata.luggage}
+Extras : ${metadata.extras}
+${metadata.serviceType === 'transfer' ? `Trajet retour : ${metadata.isReturnTrip === 'true' ? 'Oui' : 'Non'}` : ''}
+--
+Montant payé : ${amount} €`,
         });
         
         console.log(`Emails sent for session: ${session.id}`);

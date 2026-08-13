@@ -102,6 +102,9 @@ export default async function handler(req: Request, res: Response) {
       subject: "Demande de réservation enregistrée - Safeness Transport",
       html: `
         <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; line-height: 1.6;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1786662827/logo-safeness_jehe58.png" alt="Safeness Transport" width="80" height="80" style="border-radius: 50%; object-fit: cover; display: inline-block;" />
+          </div>
           <h1 style="color: #000; border-bottom: 2px solid #eee; padding-bottom: 10px;">Votre demande de réservation</h1>
           <p>Bonjour ${firstName} ${lastName},</p>
           <p>Nous avons bien reçu votre demande de réservation. Notre équipe traitera votre demande et vous contactera rapidement pour confirmer la disponibilité.</p>
@@ -138,6 +141,9 @@ export default async function handler(req: Request, res: Response) {
       subject: `Nouvelle réservation à bord (Cash) - ${firstName} ${lastName}`,
       html: `
         <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; line-height: 1.6;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1786662827/logo-safeness_jehe58.png" alt="Safeness Transport" width="80" height="80" style="border-radius: 50%; object-fit: cover; display: inline-block;" />
+          </div>
           <h1 style="color: #000; border-bottom: 2px solid #eee; padding-bottom: 10px;">Nouvelle demande de réservation (${paymentLabel})</h1>
           
           <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">

@@ -30,15 +30,23 @@ body {
 }
 
 /* Marquee Animation */
-@keyframes marquee {
-    0% { transform: translateX(0%); }
-    100% { transform: translateX(-50%); }
+.marquee-container {
+  overflow: hidden;
+  width: 100%;
 }
-.animate-marquee {
-    animation: marquee 20s linear infinite;
+.marquee-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: scroll 20s linear infinite;
 }
-.animate-marquee-slow {
-    animation: marquee 60s linear infinite;
+.marquee-track img {
+  flex-shrink: 0;
+  margin-right: 40px;
+}
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
 /* FAQ Smooth Transitions */

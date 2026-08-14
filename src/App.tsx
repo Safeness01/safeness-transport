@@ -12,7 +12,7 @@ import {
   ChevronRight, ChevronLeft, ChevronDown, ArrowUpRight, Check, CreditCard, Banknote, Plane, Tag, Sparkles, Palette,
   Train, Info, ShieldCheck, Star, ArrowRight, ArrowLeft, X, Menu, Plus,
   Phone, Mail, MessageSquare, Globe, Search, Loader2,
-  Instagram, Facebook, ArrowLeftRight
+  Instagram, Facebook, ArrowLeftRight, ArrowUpDown, RotateCcw, ArrowUp
 } from 'lucide-react';
 
 // Initialize Stripe with the public key from environment
@@ -54,15 +54,6 @@ const mapDarkStyles: google.maps.MapTypeStyle[] = [
   { featureType: "water", elementType: "geometry", stylers: [{ color: "#000000" }] },
   { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#3d3d3d" }] }
 ];
-
-// Extend JSX namespace for iconify-icon
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'iconify-icon': any;
-    }
-  }
-}
 
 const SolarUsersGroup = ({ className, size = 20, strokeWidth = 1.5 }: { className?: string; size?: number; strokeWidth?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
@@ -133,11 +124,14 @@ const SolarArrowRightUpLinear = ({ className, size = 16 }: { className?: string;
   </svg>
 );
 
+import { FlagGB, FlagFR, FlagIT, FlagDE } from './components/FlagIcons';
+import { BrandTikTok, BrandWhatsApp, BrandGoogle } from './components/SocialBrandIcons';
+
 const cities = [
-  { name: 'London', icon: 'circle-flags:gb' },
-  { name: 'Paris', icon: 'circle-flags:fr' },
-  { name: 'Milan', icon: 'circle-flags:it' },
-  { name: 'Berlin', icon: 'circle-flags:de' }
+  { name: 'London', FlagComponent: FlagGB },
+  { name: 'Paris', FlagComponent: FlagFR },
+  { name: 'Milan', FlagComponent: FlagIT },
+  { name: 'Berlin', FlagComponent: FlagDE }
 ];
 
 // Helper to get current time slot
@@ -1808,7 +1802,7 @@ export default function App() {
 
           <div className="flex items-center gap-10 mt-8">
             <a href="https://www.tiktok.com/@safeness.transport?is_from_webapp=1&amp;sender_device=pc" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-all hover:scale-110 active:scale-95" aria-label="TikTok">
-              <iconify-icon icon="ic:baseline-tiktok" width="24"></iconify-icon>
+              <BrandTikTok size={24} />
             </a>
             <a href="https://www.instagram.com/safeness_transport?igsh=MWtyZGw5OW5rNXRldA==" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-all hover:scale-110 active:scale-95" aria-label="Instagram">
               <Instagram size={24} strokeWidth={1.5} />
@@ -1938,7 +1932,7 @@ export default function App() {
           </a>
           <a href="#booking" className="mt-8 flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors uppercase font-normal tracking-wider group">
             {t('hero_estimate')}
-            <iconify-icon icon="solar:arrow-right-linear" width="20" style={{ strokeWidth: 1.5 }} class="group-hover:translate-x-1 transition-transform"></iconify-icon>
+            <ArrowRight size={18} strokeWidth={1.5} className="group-hover:translate-x-1 transition-transform" />
           </a>
         </motion.div>
         
@@ -1957,7 +1951,10 @@ export default function App() {
                 className="w-full h-full flex flex-col items-center justify-center absolute inset-0"
               >
                 <div className="w-20 h-20 rounded-full border border-white/10 flex items-center justify-center mb-6 bg-black/20 overflow-hidden shadow-xl">
-                  <iconify-icon icon={cities[currentCityIndex].icon} width="44"></iconify-icon>
+                  {(() => {
+                    const Flag = cities[currentCityIndex].FlagComponent;
+                    return <Flag size={44} />;
+                  })()}
                 </div>
                 <span className="text-base font-normal tracking-[0.2em] uppercase text-white/90">{cities[currentCityIndex].name}</span>
               </motion.div>
@@ -1968,13 +1965,7 @@ export default function App() {
             className="absolute top-1/2 -translate-y-1/2 bg-white text-stone-950 rounded-full flex items-center justify-center shadow-xl hover:bg-stone-200 transition-colors z-20 w-[32px] h-[32px] -right-[16px] md:w-10 md:h-10 md:-right-5" 
             aria-label="Next Location"
           >
-            <iconify-icon 
-              icon="solar:alt-arrow-right-linear" 
-              width="100%"
-              height="100%"
-              class="w-[16px] h-[16px] md:w-[20px] md:h-[20px] flex items-center justify-center text-center" 
-              style={{ strokeWidth: 1.5 }}
-            ></iconify-icon>
+            <ChevronRight size={18} strokeWidth={2} className="text-stone-950" />
           </button>
         </div>
       </main>
@@ -2092,7 +2083,7 @@ export default function App() {
                 <div className="absolute bottom-8 left-8 right-8 lg:bottom-12 lg:left-12 lg:right-12">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center bg-white/5 backdrop-blur-md">
-                      <iconify-icon icon="solar:map-point-bold" width="24" className="text-white"></iconify-icon>
+                      <MapPin size={22} className="text-white" strokeWidth={2} />
                     </div>
                     <span className="text-white/40 text-xs uppercase tracking-[0.2em] font-medium">{t('europe_hub_tag')}</span>
                   </div>
@@ -2826,7 +2817,7 @@ export default function App() {
               <div className="flex items-center gap-4 mt-10 md:mt-12 bg-white/[0.03] border border-white/10 px-6 py-3 rounded-full max-w-max mx-auto backdrop-blur-md shadow-lg shadow-black/10">
                 {/* Brand Logo */}
                 <div className="flex items-center justify-center">
-                  <iconify-icon icon="logos:google-icon" width="22"></iconify-icon>
+                  <BrandGoogle size={22} />
                 </div>
                 
                 {/* Text & Underneath Stars */}
@@ -3043,7 +3034,7 @@ export default function App() {
                                   className="absolute top-1/2 right-0 translate-x-1/2 -translate-y-1/2 w-[37px] h-[37px] bg-white border border-stone-200 rounded-full flex items-center justify-center text-stone-700 hover:text-stone-950 shadow-md hover:shadow-lg transition-all z-30"
                                   title={t('swap_addresses')}
                                 >
-                                  <iconify-icon icon="solar:transfer-vertical-linear" width="19"></iconify-icon>
+                                  <ArrowUpDown size={17} />
                                 </button>
                               </div>
 
@@ -3162,7 +3153,7 @@ export default function App() {
                         >
                           <div className="flex items-center gap-3">
                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${bookingData.isReturnTrip ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-400'}`}>
-                              <iconify-icon icon="solar:refresh-linear" width="20"></iconify-icon>
+                              <RotateCcw size={18} />
                             </div>
                             <div className="text-left">
                               <div className="text-sm font-bold text-stone-900">{t('returnTrip')}</div>
@@ -3763,7 +3754,7 @@ export default function App() {
                     aria-expanded={openFaqIndex === i}
                   >
                     {faq.q}
-                    <iconify-icon icon="solar:alt-arrow-down-linear" width="20" className="text-stone-500 faq-icon" style={{ strokeWidth: 1.5 }}></iconify-icon>
+                    <ChevronDown size={20} className="text-stone-500 faq-icon transition-transform duration-300" strokeWidth={1.5} />
                   </button>
                   <div className="faq-content">
                     <div className="pb-6 text-[14.5px] text-stone-300/90 font-normal leading-relaxed tracking-wide">
@@ -3803,14 +3794,14 @@ export default function App() {
             
             <div className="w-full h-px bg-white/5 mb-14 relative flex items-center justify-center">
               <div className="px-6 bg-stone-950 flex gap-4 absolute">
-                <a href="mailto:contact@safeness-transport.com" className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:border-white/40 transition-all bg-stone-950">
-                  <iconify-icon icon="solar:letter-linear" width="20" style={{ strokeWidth: 1.5 }}></iconify-icon>
+                <a href="mailto:contact@safeness-transport.com" className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:border-white/40 transition-all bg-stone-950" aria-label="Email">
+                  <Mail size={18} strokeWidth={1.5} />
                 </a>
-                <a href="tel:+33782274920" className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:border-white/40 transition-all bg-stone-950">
-                  <iconify-icon icon="solar:phone-calling-linear" width="20" style={{ strokeWidth: 1.5 }}></iconify-icon>
+                <a href="tel:+33782274920" className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:border-white/40 transition-all bg-stone-950" aria-label="Phone">
+                  <Phone size={18} strokeWidth={1.5} />
                 </a>
-                <a href="#" className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:border-white/40 transition-all bg-stone-950">
-                  <iconify-icon icon="solar:map-point-linear" width="20" style={{ strokeWidth: 1.5 }}></iconify-icon>
+                <a href="#" className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:border-white/40 transition-all bg-stone-950" aria-label="Location">
+                  <MapPin size={18} strokeWidth={1.5} />
                 </a>
               </div>
             </div>
@@ -3842,8 +3833,9 @@ export default function App() {
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className={`w-14 h-14 border border-white/10 rounded-full flex items-center justify-center text-white/50 hover:text-white transition-all ${showScrollTop ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-90 pointer-events-none'}`}
             title="Scroll to Top"
+            aria-label="Scroll to Top"
           >
-            <iconify-icon icon="solar:alt-arrow-up-linear" width="22" style={{ strokeWidth: 1.5 }}></iconify-icon>
+            <ArrowUp size={20} strokeWidth={1.5} />
           </button>
           <a 
             href="https://wa.me/33782274920" 
@@ -3851,7 +3843,7 @@ export default function App() {
             rel="noreferrer"
             className="w-[68px] h-[68px] bg-[#25D366] rounded-full flex items-center justify-center shadow-[0_0_35px_rgba(37,211,102,0.4)] text-white hover:scale-110 transition-transform"
           >
-            <iconify-icon icon="ic:baseline-whatsapp" width="34"></iconify-icon>
+            <BrandWhatsApp size={34} />
           </a>
         </div>
       </div>

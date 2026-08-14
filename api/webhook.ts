@@ -74,9 +74,6 @@ export default async function handler(req: Request, res: Response) {
           subject: "Confirmation de votre réservation - SAFENESS transport",
           html: `
             <div style="font-family: sans-serif; color: #333;">
-              <div style="text-align: center; margin-bottom: 20px;">
-                <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1786662827/logo-safeness_jehe58.png" alt="Safeness Transport" width="80" height="80" style="border-radius: 50%; object-fit: cover; display: inline-block;" />
-              </div>
               <h1 style="color: #000;">Merci pour votre réservation !</h1>
               <p>Votre paiement a été confirmé. Voici le récapitulatif de votre ${metadata.serviceType === 'hourly' ? 'mise à disposition' : 'transfert'} :</p>
               <hr />
@@ -102,13 +99,10 @@ export default async function handler(req: Request, res: Response) {
         // Email for the admin
         await resend.emails.send({
           from: "SAFENESS transport <contact@safeness-transport.com>",
-          to: "contact@safeness-transport.com", // Adress to notify
+          to: "safeness.transport@yahoo.com", // Adress to notify
           subject: "Nouvelle réservation confirmée !",
           html: `
             <div style="font-family: sans-serif; color: #333;">
-              <div style="text-align: center; margin-bottom: 20px;">
-                <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1786662827/logo-safeness_jehe58.png" alt="Safeness Transport" width="80" height="80" style="border-radius: 50%; object-fit: cover; display: inline-block;" />
-              </div>
               <h1>Nouvelle réservation reçue (${metadata.serviceType === 'hourly' ? 'Mise à disposition' : 'Transfert'})</h1>
               <p>Un client vient de payer une réservation :</p>
               <hr />

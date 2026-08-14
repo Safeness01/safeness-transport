@@ -2082,8 +2082,9 @@ export default function App() {
                     tap: { scale: 1.12, transition: { duration: 3.2, ease: [0.16, 1, 0.3, 1] } }
                   }}
                   transition={{ duration: 3.2, ease: [0.16, 1, 0.3, 1] }}
-                  src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=2073&auto=format&fit=crop" 
+                  src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=75" 
                   alt="Paris" 
+                  loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover opacity-90 md:opacity-80 group-hover:opacity-95"
                   referrerPolicy="no-referrer"
                 />
@@ -2120,8 +2121,9 @@ export default function App() {
                     tap: { scale: 1.12, transition: { duration: 3.2, ease: [0.16, 1, 0.3, 1] } }
                   }}
                   transition={{ duration: 3.2, ease: [0.16, 1, 0.3, 1] }}
-                  src="https://images.unsplash.com/photo-1595867818082-083862f3d630?q=80&w=2070&auto=format&fit=crop" 
+                  src="https://images.unsplash.com/photo-1595867818082-083862f3d630?auto=format&fit=crop&w=600&q=75" 
                   alt="Munich" 
+                  loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover opacity-90 md:opacity-80 group-hover:opacity-95"
                   referrerPolicy="no-referrer"
                 />
@@ -2150,8 +2152,9 @@ export default function App() {
                     tap: { scale: 1.12, transition: { duration: 3.2, ease: [0.16, 1, 0.3, 1] } }
                   }}
                   transition={{ duration: 3.2, ease: [0.16, 1, 0.3, 1] }}
-                  src="https://images.unsplash.com/photo-1610016302534-6f67f1c968d8?ixlib=rb-4.1.0&q=85&fm=jpg&crop=entropy&cs=srgb&dl=ouael-ben-salah-0xe2FGo7Vc0-unsplash.jpg" 
+                  src="https://images.unsplash.com/photo-1610016302534-6f67f1c968d8?auto=format&fit=crop&w=600&q=75" 
                   alt="Milan" 
+                  loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover opacity-90 md:opacity-80 group-hover:opacity-95"
                   referrerPolicy="no-referrer"
                 />
@@ -2180,8 +2183,9 @@ export default function App() {
                     tap: { scale: 1.12, transition: { duration: 3.2, ease: [0.16, 1, 0.3, 1] } }
                   }}
                   transition={{ duration: 3.2, ease: [0.16, 1, 0.3, 1] }}
-                  src="https://images.unsplash.com/photo-1560969184-10fe8719e047?q=80&w=2070&auto=format&fit=crop" 
+                  src="https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=75" 
                   alt="Berlin" 
+                  loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover opacity-90 md:opacity-80 group-hover:opacity-95"
                   referrerPolicy="no-referrer"
                 />
@@ -2756,8 +2760,9 @@ export default function App() {
                     {/* Image 1: Portrait Interior */}
                     <div className="group relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] border border-white/10 aspect-[3/4] h-[384px] md:h-[420px] flex-shrink-0">
                       <img 
-                        src="https://images.unsplash.com/photo-1629019878688-f5d58a41b188?auto=format&fit=crop&w=800&q=80" 
+                        src="https://images.unsplash.com/photo-1629019878688-f5d58a41b188?auto=format&fit=crop&w=600&q=75" 
                         alt={t('gallery_img1_alt')} 
+                        loading="lazy"
                         className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-105 opacity-90 group-hover:opacity-100"
                         referrerPolicy="no-referrer"
                       />
@@ -2769,6 +2774,7 @@ export default function App() {
                       <img 
                         src="https://i.ibb.co/F4DSS7RY/Image-2.jpg" 
                         alt={t('gallery_img2_alt')} 
+                        loading="lazy"
                         className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-105 opacity-90 group-hover:opacity-100"
                         referrerPolicy="no-referrer"
                       />
@@ -2778,8 +2784,9 @@ export default function App() {
                     {/* Image 3: Portrait End Detail */}
                     <div className="group relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] border border-white/10 aspect-[3/4] h-[384px] md:h-[420px] flex-shrink-0">
                       <img 
-                        src="https://images.unsplash.com/photo-1720731035872-7aa3708996c1?auto=format&fit=crop&w=800&q=80" 
+                        src="https://images.unsplash.com/photo-1720731035872-7aa3708996c1?auto=format&fit=crop&w=600&q=75" 
                         alt={t('gallery_img3_alt')} 
+                        loading="lazy"
                         className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-105 opacity-90 group-hover:opacity-100"
                         referrerPolicy="no-referrer"
                       />

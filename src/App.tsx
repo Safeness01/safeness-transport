@@ -2490,6 +2490,7 @@ export default function App() {
                                   setStep(1);
                                   window.scrollTo({ top: 0, behavior: 'smooth' });
                                 }}
+                                aria-label={`${t('book_now')} - ${t(item.key)} (${item.price})`}
                                 className="w-12 h-12 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-stone-900 transition-all duration-700 ease-out shadow-lg active:scale-95"
                               >
                                 <ArrowRight size={20} />
@@ -3085,6 +3086,7 @@ export default function App() {
                                 <select 
                                   value={bookingData.durationHours}
                                   onChange={(e) => setBookingData(prev => ({ ...prev, durationHours: parseInt(e.target.value) }))}
+                                  aria-label={lang === 'fr' ? 'Durée de la mise à disposition en heures' : lang === 'es' ? 'Duración en horas' : 'Duration in hours'}
                                   className="w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-4 text-stone-950 text-[15px] font-semibold focus:ring-0 outline-none appearance-none cursor-pointer"
                                 >
                                   {[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(h => (
@@ -3131,6 +3133,7 @@ export default function App() {
                                 setBookingData(prev => ({ ...prev, time: e.target.value }));
                                 if (bookingError) setBookingError(null);
                               }}
+                              aria-label={lang === 'fr' ? 'Sélectionner l\'heure de prise en charge' : lang === 'es' ? 'Seleccionar hora de recogida' : 'Select pickup time'}
                               className={`w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-10 font-medium focus:ring-0 outline-none appearance-none cursor-pointer text-[16px] ${bookingData.time ? 'text-stone-950' : 'text-stone-700/90'}`}
                             >
                               <option value="" disabled className="text-stone-700/90 bg-white font-medium">
@@ -3200,6 +3203,7 @@ export default function App() {
                                     setBookingData(prev => ({ ...prev, returnTime: e.target.value }));
                                     if (bookingError) setBookingError(null);
                                   }}
+                                  aria-label={lang === 'fr' ? 'Sélectionner l\'heure de retour' : lang === 'es' ? 'Seleccionar hora de vuelta' : 'Select a return time'}
                                   className={`w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-10 font-medium focus:ring-0 outline-none appearance-none cursor-pointer text-[16px] ${bookingData.returnTime ? 'text-stone-950' : 'text-stone-700/90'}`}
                                 >
                                   <option value="" disabled className="text-stone-700/90 bg-white font-medium">
@@ -3383,6 +3387,7 @@ export default function App() {
                             <select
                               value={bookingData.countryCode}
                               onChange={(e) => setBookingData(prev => ({ ...prev, countryCode: e.target.value }))}
+                              aria-label={lang === 'fr' ? 'Indicatif téléphonique international' : lang === 'es' ? 'Código de país' : 'Country dial code'}
                               className="bg-transparent border-r border-stone-300 py-3 md:py-4 px-3 text-stone-950 outline-none text-sm font-semibold w-auto cursor-pointer flex-shrink-0"
                             >
                               <option value="+33" className="text-stone-950 bg-white font-medium">+33</option>
@@ -3420,6 +3425,7 @@ export default function App() {
                             <select 
                               value={bookingData.passengers}
                               onChange={(e) => setBookingData(prev => ({ ...prev, passengers: parseInt(e.target.value) }))}
+                              aria-label={t('passengers')}
                               className="w-full bg-transparent border-none py-3 md:py-4 pl-4 pr-10 font-semibold focus:ring-0 outline-none appearance-none cursor-pointer text-stone-950"
                             >
                               {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
@@ -3444,6 +3450,7 @@ export default function App() {
                             <select 
                               value={bookingData.luggage}
                               onChange={(e) => setBookingData(prev => ({ ...prev, luggage: parseInt(e.target.value) }))}
+                              aria-label={t('luggage')}
                               className="w-full bg-transparent border-none py-3 md:py-4 pl-4 pr-10 font-semibold focus:ring-0 outline-none appearance-none cursor-pointer text-stone-950"
                             >
                               {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
@@ -3535,6 +3542,7 @@ export default function App() {
                                     onBoardPaymentType: val 
                                   }));
                                 }}
+                                aria-label={t('payment_mode')}
                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                               >
                                 <option value="default" disabled hidden>{t('cash')}</option>
@@ -3845,9 +3853,11 @@ export default function App() {
             href="https://wa.me/33782274920" 
             target="_blank"
             rel="noreferrer"
+            aria-label="Contacter Safeness Transport sur WhatsApp"
             className="w-[68px] h-[68px] bg-[#25D366] rounded-full flex items-center justify-center shadow-[0_0_35px_rgba(37,211,102,0.4)] text-white hover:scale-110 transition-transform"
           >
             <BrandWhatsApp size={34} />
+            <span className="sr-only">Contacter Safeness Transport sur WhatsApp</span>
           </a>
         </div>
       </div>

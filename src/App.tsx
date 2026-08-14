@@ -2768,7 +2768,7 @@ export default function App() {
                     {/* Image 2: Portrait Center Detail */}
                     <div className="group relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] border border-white/10 aspect-[3/4] h-[384px] md:h-[420px] flex-shrink-0">
                       <img 
-                        src="https://i.ibb.co/F4DSS7RY/Image-2.jpg" 
+                        src="https://res.cloudinary.com/ec9kwdkg/image/upload/f_auto,q_100,w_1200/v1786743731/Image_2_h6hmh6.jpg" 
                         alt={t('gallery_img2_alt')} 
                         loading="lazy"
                         className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-105 opacity-90 group-hover:opacity-100"

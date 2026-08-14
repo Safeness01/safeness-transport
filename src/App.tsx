@@ -552,7 +552,7 @@ export default function App() {
   };
 
   const vehicles = {
-    eco: { name: 'Économique', model: 'Toyota Corolla / Similaire', startFee: 30, kmPrice: 1.80, hourlyPrice: 40, pax: 3, bag: 3, img: 'https://res.cloudinary.com/ec9kwdkg/image/upload/v1786485982/737896c9-84e7-4429-bf37-95bc5bca8626_hyy7y0.png' },
+    eco: { name: 'Économique', model: 'Toyota Corolla / Similaire', startFee: 30, kmPrice: 1.80, hourlyPrice: 40, pax: 3, bag: 3, img: 'https://res.cloudinary.com/ec9kwdkg/image/upload/f_auto,q_auto,w_600/v1786485982/737896c9-84e7-4429-bf37-95bc5bca8626_hyy7y0.png' },
     tesla: { name: 'Tesla / BYD', model: 'Tesla Model 3 / Y, BYD', startFee: 40, kmPrice: 1.90, hourlyPrice: 50, pax: 3, bag: 3, img: 'https://i.ibb.co/5gGysbdL/tesla.png' },
     business: { name: 'Mercedes Classe E', model: 'Mercedes-Benz Classe E', startFee: 50, kmPrice: 2.10, hourlyPrice: 60, pax: 3, bag: 3, img: 'https://i.ibb.co/DPTqpP5k/classe-e.png' },
     van_v: { name: 'Mercedes Classe V', model: 'Mercedes-Benz Classe V', startFee: 55, kmPrice: 2.50, hourlyPrice: 90, pax: 7, bag: 7, img: 'https://i.ibb.co/cK654DjV/classe-v.png' },
@@ -1821,6 +1821,10 @@ export default function App() {
           alt="Premium Service Background" 
           className="w-full h-full object-cover object-center"
           referrerPolicy="no-referrer"
+          loading="eager"
+          decoding="async"
+          // @ts-ignore
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-stone-950/70 backdrop-blur-[2px]"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-transparent to-stone-950/50"></div>
@@ -1991,16 +1995,16 @@ export default function App() {
             <div className="relative flex overflow-hidden w-full">
               <div className="animate-marquee flex whitespace-nowrap w-max">
                 <div className="flex items-center gap-12 md:gap-24 px-6 md:px-12 flex-none">
-                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410691/1200px-Vaisala_logo.svg_u59jsu.png" alt="Uniformation" className="h-6 object-contain brightness-0 invert opacity-60" />
-                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410691/2560px-Prada-Logo.svg-1024x159-1_uyx0zd.webp" alt="Prada" className="h-4 object-contain brightness-0 invert opacity-60" />
-                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410691/1200px-Vaisala_logo.svg_u59jsu.png" alt="Vaisala" className="h-6 object-contain brightness-0 invert opacity-60" />
-                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410692/ETSGlobal_logo.a83452a9_xxbkm6.png" alt="ETS Global" className="h-8 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/f_auto,q_auto,w_300/v1785410691/1200px-Vaisala_logo.svg_u59jsu.png" alt="Uniformation" className="h-6 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/f_auto,q_auto,w_300/v1785410691/2560px-Prada-Logo.svg-1024x159-1_uyx0zd.webp" alt="Prada" className="h-4 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/f_auto,q_auto,w_300/v1785410691/1200px-Vaisala_logo.svg_u59jsu.png" alt="Vaisala" className="h-6 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/f_auto,q_auto,w_300/v1785410692/ETSGlobal_logo.a83452a9_xxbkm6.png" alt="ETS Global" className="h-8 object-contain brightness-0 invert opacity-60" />
                 </div>
                 <div className="flex items-center gap-12 md:gap-24 px-6 md:px-12 flex-none">
-                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410691/1200px-Vaisala_logo.svg_u59jsu.png" alt="Uniformation" className="h-6 object-contain brightness-0 invert opacity-60" />
-                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410691/2560px-Prada-Logo.svg-1024x159-1_uyx0zd.webp" alt="Prada" className="h-4 object-contain brightness-0 invert opacity-60" />
-                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410691/1200px-Vaisala_logo.svg_u59jsu.png" alt="Vaisala" className="h-6 object-contain brightness-0 invert opacity-60" />
-                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1785410692/ETSGlobal_logo.a83452a9_xxbkm6.png" alt="ETS Global" className="h-8 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/f_auto,q_auto,w_300/v1785410691/1200px-Vaisala_logo.svg_u59jsu.png" alt="Uniformation" className="h-6 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/f_auto,q_auto,w_300/v1785410691/2560px-Prada-Logo.svg-1024x159-1_uyx0zd.webp" alt="Prada" className="h-4 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/f_auto,q_auto,w_300/v1785410691/1200px-Vaisala_logo.svg_u59jsu.png" alt="Vaisala" className="h-6 object-contain brightness-0 invert opacity-60" />
+                  <img src="https://res.cloudinary.com/ec9kwdkg/image/upload/f_auto,q_auto,w_300/v1785410692/ETSGlobal_logo.a83452a9_xxbkm6.png" alt="ETS Global" className="h-8 object-contain brightness-0 invert opacity-60" />
                 </div>
               </div>
             </div>
@@ -2258,27 +2262,27 @@ export default function App() {
               {[
                 { 
                   icon: <Building2 size={22} />, 
-                  img: "https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto/Image_6_tf7z1r",
+                  img: "https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/Image_6_tf7z1r",
                   features: [t('service1_feat1'), t('service1_feat2'), t('service1_feat3')]
                 },
                 { 
                   icon: <Navigation size={22} />, 
-                  img: "https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto/Image_1_vuxvex",
+                  img: "https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/Image_1_vuxvex",
                   features: [t('service2_feat1'), t('service2_feat2'), t('service2_feat3')]
                 },
                 { 
                   icon: <MapPin size={22} />, 
-                  img: "https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto/Image_2_ktc2ce",
+                  img: "https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/Image_2_ktc2ce",
                   features: [t('service3_feat1'), t('service3_feat2'), t('service3_feat3')]
                 },
                 { 
                   icon: <Briefcase size={22} />, 
-                  img: "https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto/Image_3_s2urdg",
+                  img: "https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/Image_3_s2urdg",
                   features: [t('service4_feat1'), t('service4_feat2'), t('service4_feat3')]
                 },
                 { 
                   icon: <Calendar size={22} />, 
-                  img: "https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto/Image_4_djvs21",
+                  img: "https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/Image_4_djvs21",
                   features: [t('service5_feat1'), t('service5_feat2'), t('service5_feat3')]
                 }
               ].map((service, i) => (
@@ -2407,12 +2411,12 @@ export default function App() {
             {/* Transfers Grid - Static Tall Cards */}
             <div id="transfers-grid-container" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
-                { key: 'route_cdg', price: '120€', time: '45 min', icon: <Navigation size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto/603b4374-0730-4377-a001-ab58e60cb33d_l6ue2k' },
-                { key: 'route_orly', price: '120€', time: '35 min', icon: <MapPin size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto/39169e3d-ae4f-46b7-a9a0-9aee8857f11a_wzsemp' },
-                { key: 'route_disney', price: '120€', time: '50 min', icon: <Sparkles size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto/b04fc1f4-3d8d-4e87-89a5-7d9dd8d174ae_jw5xtm' },
-                { key: 'route_versailles', price: '120€', time: '40 min', icon: <Building2 size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto/39169e3d-ae4f-46b7-a9a0-9aee8857f11a_wzsemp' },
-                { key: 'route_giverny', price: '120€', time: '75 min', icon: <Palette size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto/39169e3d-ae4f-46b7-a9a0-9aee8857f11a_wzsemp', lgOnly: true },
-                { key: 'route_beauvais', price: '120€', time: '80 min', icon: <Plane size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto/39169e3d-ae4f-46b7-a9a0-9aee8857f11a_wzsemp', lgOnly: true },
+                { key: 'route_cdg', price: '120€', time: '45 min', icon: <Navigation size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/603b4374-0730-4377-a001-ab58e60cb33d_l6ue2k' },
+                { key: 'route_orly', price: '120€', time: '35 min', icon: <MapPin size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/39169e3d-ae4f-46b7-a9a0-9aee8857f11a_wzsemp' },
+                { key: 'route_disney', price: '120€', time: '50 min', icon: <Sparkles size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/b04fc1f4-3d8d-4e87-89a5-7d9dd8d174ae_jw5xtm' },
+                { key: 'route_versailles', price: '120€', time: '40 min', icon: <Building2 size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/39169e3d-ae4f-46b7-a9a0-9aee8857f11a_wzsemp' },
+                { key: 'route_giverny', price: '120€', time: '75 min', icon: <Palette size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/39169e3d-ae4f-46b7-a9a0-9aee8857f11a_wzsemp', lgOnly: true },
+                { key: 'route_beauvais', price: '120€', time: '80 min', icon: <Plane size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/39169e3d-ae4f-46b7-a9a0-9aee8857f11a_wzsemp', lgOnly: true },
               ].map((item: any, i) => {
                 return (
                   <motion.div 

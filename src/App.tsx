@@ -552,7 +552,7 @@ export default function App() {
   };
 
   const vehicles = {
-    eco: { name: 'Économique', model: 'Toyota Corolla / Similaire', startFee: 30, kmPrice: 1.80, hourlyPrice: 40, pax: 3, bag: 3, img: 'https://i.ibb.co/1Y0NQDVJ/737896c9-84e7-4429-bf37-95bc5bca8626.png' },
+    eco: { name: 'Économique', model: 'Toyota Corolla / Similaire', startFee: 30, kmPrice: 1.80, hourlyPrice: 40, pax: 3, bag: 3, img: '/images/economy.png' },
     tesla: { name: 'Tesla / BYD', model: 'Tesla Model 3 / Y, BYD', startFee: 40, kmPrice: 1.90, hourlyPrice: 50, pax: 3, bag: 3, img: 'https://i.ibb.co/5gGysbdL/tesla.png' },
     business: { name: 'Mercedes Classe E', model: 'Mercedes-Benz Classe E', startFee: 50, kmPrice: 2.10, hourlyPrice: 60, pax: 3, bag: 3, img: 'https://i.ibb.co/DPTqpP5k/classe-e.png' },
     van_v: { name: 'Mercedes Classe V', model: 'Mercedes-Benz Classe V', startFee: 55, kmPrice: 2.50, hourlyPrice: 90, pax: 7, bag: 7, img: 'https://i.ibb.co/cK654DjV/classe-v.png' },
@@ -1817,7 +1817,7 @@ export default function App() {
       {/* BACKGROUND LAYER */}
       <div className="fixed inset-0 z-0">
         <img 
-          src="/hero-bg.jpg" 
+          src="/images/hero-bg.jpg" 
           alt="Premium Service Background" 
           className="w-full h-full object-cover object-center"
           loading="eager"

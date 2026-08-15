@@ -14,6 +14,7 @@ import {
   Phone, Mail, MessageSquare, Globe, Search, Loader2,
   Instagram, Facebook, ArrowLeftRight, ArrowUpDown, RotateCcw, ArrowUp
 } from 'lucide-react';
+import heroBgImage from './assets/hero-bg.jpg';
 
 // Initialize Stripe with the public key from environment
 const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '';
@@ -1817,7 +1818,7 @@ export default function App() {
       {/* BACKGROUND LAYER */}
       <div className="fixed inset-0 z-0">
         <img 
-          src="/images/hero-bg.jpg" 
+          src={heroBgImage} 
           alt="Premium Service Background" 
           className="w-full h-full object-cover object-center"
           loading="eager"

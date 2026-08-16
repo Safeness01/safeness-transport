@@ -35,8 +35,11 @@ interface CheckoutRequestBody {
   vehicle: string;
   distance: number;
   extras: string[];
+  date?: string;
   time: string;
   isReturnTrip: boolean;
+  returnDate?: string;
+  returnTime?: string;
   pickup: string;
   dropoff: string;
   firstName: string;
@@ -57,7 +60,7 @@ export default async function handler(req: Request, res: Response) {
 
   try {
     const { 
-      serviceType, durationHours, vehicle, distance, extras, time, isReturnTrip, pickup, dropoff,
+      serviceType, durationHours, vehicle, distance, extras, date, time, isReturnTrip, returnDate, returnTime, pickup, dropoff,
       firstName, lastName, email, phone, passengers, luggage, flightNumber,
       lang = 'fr',
       serviceCategory
@@ -150,6 +153,7 @@ export default async function handler(req: Request, res: Response) {
         phone,
         pickup,
         dropoff,
+        date: date || "",
         time,
         vehicle: selectedVehicle.name,
         passengers: passengers.toString(),
@@ -157,6 +161,8 @@ export default async function handler(req: Request, res: Response) {
         flightNumber: flightNumber || "N/A",
         extras: Array.isArray(extras) ? extras.join(", ") : "None",
         isReturnTrip: isReturnTrip.toString(),
+        returnDate: returnDate || "",
+        returnTime: returnTime || "",
       },
       success_url: `${process.env.APP_URL || process.env.VITE_APP_URL}/?status=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.APP_URL || process.env.VITE_APP_URL}/?status=cancel`,

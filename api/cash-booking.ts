@@ -34,7 +34,7 @@ export default async function handler(req: Request, res: Response) {
 
   try {
     const { 
-      serviceType, durationHours, vehicle, distance, extras, time, isReturnTrip, pickup, dropoff,
+      serviceType, durationHours, vehicle, distance, extras, date, time, isReturnTrip, returnDate, returnTime, pickup, dropoff,
       firstName, lastName, email, phone, passengers, luggage, flightNumber,
       paymentMethod = 'cash',
       lang = 'fr',
@@ -93,6 +93,9 @@ export default async function handler(req: Request, res: Response) {
         ? "Paiement à bord en Espèces" 
         : paymentMethod;
 
+    const dateTimeFormatted = `${date ? `${date} à ` : ''}${time || 'Non spécifié'}`;
+    const returnDateTimeFormatted = `${returnDate ? `${returnDate} à ` : ''}${returnTime || 'Non spécifié'}`;
+
     const resend = getResend();
 
     // 1. Email for customer
@@ -114,12 +117,12 @@ export default async function handler(req: Request, res: Response) {
               ? `<p><strong>Durée :</strong> ${durationHours} heures</p>`
               : `<p><strong>Lieu d'arrivée :</strong> ${dropoff}</p>`
             }
-            <p><strong>Date & Heure :</strong> ${time || 'Non spécifié'}</p>
+            <p><strong>Date & Heure :</strong> ${dateTimeFormatted}</p>
             <p><strong>Véhicule :</strong> ${selectedVehicle.name}</p>
             <p><strong>Passagers :</strong> ${passengers}</p>
             <p><strong>Bagages :</strong> ${luggage}</p>
             <p><strong>Options / Extras :</strong> ${extrasText}</p>
-            ${serviceType === 'transfer' ? `<p><strong>Trajet retour :</strong> ${isReturnTrip ? 'Oui' : 'Non'}</p>` : ''}
+            ${serviceType === 'transfer' && isReturnTrip ? `<p><strong>Trajet retour :</strong> Oui (${returnDateTimeFormatted})</p>` : ''}
             <hr style="border: none; border-top: 1px solid #ddd; margin: 15px 0;" />
             <p><strong>Mode de paiement :</strong> ${paymentLabel}</p>
             ${finalAmount > 0 ? `<p><strong>Montant estimé :</strong> ${finalAmount} €</p>` : ''}
@@ -154,12 +157,12 @@ export default async function handler(req: Request, res: Response) {
               ? `<p><strong>Durée :</strong> ${durationHours} heures</p>`
               : `<p><strong>Arrivée :</strong> ${dropoff}</p>`
             }
-            <p><strong>Date / Heure :</strong> ${time}</p>
+            <p><strong>Date / Heure :</strong> ${dateTimeFormatted}</p>
             <p><strong>Véhicule :</strong> ${selectedVehicle.name}</p>
             <p><strong>Passagers :</strong> ${passengers}</p>
             <p><strong>Bagages :</strong> ${luggage}</p>
             <p><strong>Extras :</strong> ${extrasText}</p>
-            ${serviceType === 'transfer' ? `<p><strong>Trajet retour :</strong> ${isReturnTrip ? 'Oui' : 'Non'}</p>` : ''}
+            ${serviceType === 'transfer' && isReturnTrip ? `<p><strong>Trajet retour :</strong> Oui (${returnDateTimeFormatted})</p>` : ''}
             <hr style="border: none; border-top: 1px solid #ddd; margin: 15px 0;" />
             <p><strong>Mode de paiement :</strong> ${paymentLabel}</p>
             <p><strong>Montant estimé :</strong> ${finalAmount} €</p>
@@ -181,12 +184,12 @@ ${serviceType === 'hourly'
   ? `Durée : ${durationHours} heures`
   : `Arrivée : ${dropoff}`
 }
-Date / Heure : ${time}
+Date / Heure : ${dateTimeFormatted}
 Véhicule : ${selectedVehicle.name}
 Passagers : ${passengers}
 Bagages : ${luggage}
 Extras : ${extrasText}
-${serviceType === 'transfer' ? `Trajet retour : ${isReturnTrip ? 'Oui' : 'Non'}` : ''}
+${serviceType === 'transfer' && isReturnTrip ? `Trajet retour : Oui (${returnDateTimeFormatted})` : ''}
 --
 Mode de paiement : ${paymentLabel}
 Montant estimé : ${finalAmount} €`,

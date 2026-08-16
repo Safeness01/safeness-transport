@@ -12,7 +12,8 @@ import {
   ChevronRight, ChevronLeft, ChevronDown, ArrowUpRight, Check, CreditCard, Banknote, Plane, Tag, Sparkles, Palette,
   Train, Info, ShieldCheck, Star, ArrowRight, ArrowLeft, X, Menu, Plus,
   Phone, Mail, MessageSquare, Globe, Search, Loader2,
-  Instagram, Facebook, ArrowLeftRight, ArrowUpDown, RotateCcw, ArrowUp
+  Instagram, Facebook, ArrowLeftRight, ArrowUpDown, RotateCcw, ArrowUp,
+  AlertCircle
 } from 'lucide-react';
 
 // Initialize Stripe with the public key from environment
@@ -164,6 +165,7 @@ export default function App() {
   const [lang, setLang] = useState('en');
   const [loading, setLoading] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
+  const [step1Error, setStep1Error] = useState<string | null>(null);
 
   const [isDesktop, setIsDesktop] = useState(false);
 
@@ -398,10 +400,29 @@ export default function App() {
 
   const pickupInputRef = useRef<HTMLInputElement>(null);
   const dropoffInputRef = useRef<HTMLInputElement>(null);
+  const pickupContainerRef = useRef<HTMLDivElement>(null);
+  const dropoffContainerRef = useRef<HTMLDivElement>(null);
   const firstNameRef = useRef<HTMLInputElement>(null);
   const lastNameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const phoneRef = useRef<HTMLInputElement>(null);
+
+  // Close address suggestions on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (suggestions.pickup.length > 0 && pickupContainerRef.current && !pickupContainerRef.current.contains(e.target as Node)) {
+        setSuggestions(prev => ({ ...prev, pickup: [] }));
+      }
+      if (suggestions.dropoff.length > 0 && dropoffContainerRef.current && !dropoffContainerRef.current.contains(e.target as Node)) {
+        setSuggestions(prev => ({ ...prev, dropoff: [] }));
+      }
+    };
+
+    if (suggestions.pickup.length > 0 || suggestions.dropoff.length > 0) {
+      window.addEventListener('click', handleClickOutside);
+    }
+    return () => window.removeEventListener('click', handleClickOutside);
+  }, [suggestions.pickup.length, suggestions.dropoff.length]);
 
   useEffect(() => {
     if (pickupInputRef.current) {
@@ -521,30 +542,96 @@ export default function App() {
   // --- Booking Form Logic ---
 
   const handleNextStep1 = async () => {
-    const { pickupCoords, dropoffCoords, serviceType } = bookingData;
+    const { pickup, dropoff, pickupCoords, dropoffCoords, serviceType, date, time, isReturnTrip, returnDate, returnTime } = bookingData;
     
-    setLoading(true);
+    setStep1Error(null);
     setBookingError(null);
+
+    // 1. Validation de l'adresse de départ
+    if (!pickup || pickup.trim() === '') {
+      setStep1Error("Veuillez renseigner une adresse de départ.");
+      return;
+    }
+
+    // 2. Validation de l'adresse de destination en mode transfert
+    if (serviceType === 'transfer' && (!dropoff || dropoff.trim() === '')) {
+      setStep1Error("Veuillez renseigner une adresse de destination.");
+      return;
+    }
+
+    // Validation des coordonnées sélectionnées dans les suggestions
+    if (!pickupCoords) {
+      setStep1Error("Veuillez sélectionner une adresse de départ dans la liste de suggestions.");
+      return;
+    }
+
+    if (serviceType === 'transfer' && !dropoffCoords) {
+      setStep1Error("Veuillez sélectionner une adresse de destination dans la liste de suggestions.");
+      return;
+    }
+
+    // 3. Validation de la date de départ
+    if (!date) {
+      setStep1Error("Veuillez sélectionner une date de prise en charge.");
+      return;
+    }
+
+    // 4. Validation de l'heure de départ
+    if (!time) {
+      setStep1Error("Veuillez sélectionner une heure de prise en charge.");
+      return;
+    }
+
+    // 5. Vérification que la date et l'heure ne sont pas dans le passé
+    try {
+      const startTime = time.includes("-") ? time.split("-")[0].trim() : time.trim();
+      const selectedDateTime = new Date(date + "T" + startTime);
+      const now = new Date();
+      if (isNaN(selectedDateTime.getTime())) {
+        setStep1Error("Date ou heure de prise en charge invalide.");
+        return;
+      }
+      if (selectedDateTime.getTime() < now.getTime() - 5 * 60 * 1000) {
+        setStep1Error("La date et l'heure de prise en charge ne peuvent pas être dans le passé.");
+        return;
+      }
+
+      // 6. Validation aller-retour
+      if (serviceType === "transfer" && isReturnTrip) {
+        if (!returnDate) {
+          setStep1Error("Veuillez sélectionner une date pour le trajet retour.");
+          return;
+        }
+        if (!returnTime) {
+          setStep1Error("Veuillez sélectionner une heure pour le trajet retour.");
+          return;
+        }
+        const returnStartTime = returnTime.includes("-") ? returnTime.split("-")[0].trim() : returnTime.trim();
+        const returnDateTime = new Date(returnDate + "T" + returnStartTime);
+        if (isNaN(returnDateTime.getTime())) {
+          setStep1Error("Date ou heure de retour invalide.");
+          return;
+        }
+        if (returnDateTime.getTime() <= selectedDateTime.getTime()) {
+          setStep1Error("La date et l'heure de retour doivent être postérieures au départ.");
+          return;
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    setLoading(true);
     try {
       if (serviceType === 'transfer' && pickupCoords && dropoffCoords) {
         await calculateRoute(pickupCoords, dropoffCoords);
       } else if (serviceType === 'hourly' && pickupCoords && googleMapRef.current) {
-        // Just center map on pickup if hourly
         googleMapRef.current.setCenter({ lat: pickupCoords[0], lng: pickupCoords[1] });
         googleMapRef.current.setZoom(14);
-      } else {
-        // Fallback values if coordinates are missing or not geocoded yet
-        setBookingData(prev => ({
-          ...prev,
-          distance: prev.distance || 15,
-          duration: prev.duration || 30,
-          pickup: prev.pickup || 'Paris',
-          dropoff: prev.serviceType === 'transfer' ? (prev.dropoff || 'Aéroport Charles de Gaulle (CDG)') : prev.dropoff
-        }));
       }
       setStep(2);
     } catch (error) {
-      console.error("Step 1 error:", error);
+      console.error("Step 1 route calculation error:", error);
       setStep(2);
     } finally {
       setLoading(false);
@@ -1556,6 +1643,7 @@ export default function App() {
 
   const selectAddress = (item: any, type: 'pickup' | 'dropoff' | 'returnPickup' | 'returnDropoff') => {
     const applyCoordsAndAddress = (coords: [number, number], address: string) => {
+      setStep1Error(null);
       setBookingData(prev => ({
         ...prev,
         [type]: address,
@@ -1578,6 +1666,22 @@ export default function App() {
       }
     };
 
+    const handleGeocodeFailure = (address: string) => {
+      setBookingData(prev => ({
+        ...prev,
+        [type]: address,
+        [`${type}Coords`]: null
+      }));
+      setSuggestions(prev => ({ ...prev, [type]: [] }));
+      setStep1Error(
+        lang === 'fr'
+          ? "Impossible de localiser cette adresse, veuillez réessayer ou choisir une autre suggestion."
+          : lang === 'es'
+          ? "No se pudo localizar esta dirección, inténtelo de nuevo o elija otra sugerencia."
+          : "Unable to locate this address, please try again or choose another suggestion."
+      );
+    };
+
     if (item.placeId && geocoderRef.current) {
       geocoderRef.current.geocode({ placeId: item.placeId }, (results, status) => {
         if (status === window.google.maps.GeocoderStatus.OK && results?.[0]) {
@@ -1586,13 +1690,19 @@ export default function App() {
           const lng = location.lng();
           applyCoordsAndAddress([lat, lng], results[0].formatted_address || item.description);
         } else {
-          applyCoordsAndAddress([48.8566, 2.3522], item.description);
+          handleGeocodeFailure(item.description);
         }
       });
+    } else if (item.lat != null && item.lon != null) {
+      const lat = typeof item.lat === 'string' ? parseFloat(item.lat) : item.lat;
+      const lon = typeof item.lon === 'string' ? parseFloat(item.lon) : item.lon;
+      if (!isNaN(lat) && !isNaN(lon)) {
+        applyCoordsAndAddress([lat, lon], item.description);
+      } else {
+        handleGeocodeFailure(item.description);
+      }
     } else {
-      const lat = typeof item.lat === 'string' ? parseFloat(item.lat) : (item.lat || 48.8566);
-      const lon = typeof item.lon === 'string' ? parseFloat(item.lon) : (item.lon || 2.3522);
-      applyCoordsAndAddress([lat, lon], item.description);
+      handleGeocodeFailure(item.description);
     }
   };
 
@@ -1684,8 +1794,11 @@ export default function App() {
             vehicle: bookingData.vehicle,
             distance: bookingData.distance,
             extras: bookingData.extras,
+            date: bookingData.date,
             time: bookingData.time,
             isReturnTrip: bookingData.isReturnTrip,
+            returnDate: bookingData.returnDate,
+            returnTime: bookingData.returnTime,
             pickup: bookingData.pickup,
             dropoff: bookingData.serviceType === 'transfer' ? bookingData.dropoff : 'Mise à disposition',
             firstName: bookingData.firstName,
@@ -1727,8 +1840,11 @@ export default function App() {
             vehicle: bookingData.vehicle,
             distance: bookingData.distance,
             extras: bookingData.extras,
+            date: bookingData.date,
             time: bookingData.time,
             isReturnTrip: bookingData.isReturnTrip,
+            returnDate: bookingData.returnDate,
+            returnTime: bookingData.returnTime,
             pickup: bookingData.pickup,
             dropoff: bookingData.serviceType === 'transfer' ? bookingData.dropoff : 'Mise à disposition',
             firstName: bookingData.firstName,
@@ -2936,26 +3052,29 @@ export default function App() {
                 {[1, 2, 3].map((s) => (
                   <Fragment key={s}>
                     <button
+                      type="button"
                       onClick={() => {
+                        if (s < step) {
                           setStep(s);
+                        }
                       }}
-                      className="flex items-center justify-center focus:outline-none"
+                      disabled={s >= step}
+                      className={`flex items-center justify-center focus:outline-none ${s >= step ? "cursor-default" : "cursor-pointer"}`}
                     >
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-all duration-500 ${step >= s ? 'bg-stone-900 text-white shadow-lg scale-110' : 'bg-stone-100 text-stone-400 border border-stone-50'}`}>
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-all duration-500 ${step >= s ? "bg-stone-900 text-white shadow-lg scale-110" : "bg-stone-100 text-stone-400 border border-stone-50"}`}>
                         {s}
                       </div>
                     </button>
                     {s < 3 && (
                       <div className="flex-1 h-px mx-2 relative">
                         <div className="absolute inset-0 bg-stone-100"></div>
-                        <div className={`absolute inset-0 bg-stone-900 transition-all duration-700 ${step > s ? 'w-full' : 'w-0'}`}></div>
+                        <div className={`absolute inset-0 bg-stone-900 transition-all duration-700 ${step > s ? "w-full" : "w-0"}`}></div>
                       </div>
                     )}
                   </Fragment>
                 ))}
               </div>
             </div>
-
             <div className="bg-white rounded-[1rem] shadow-2xl overflow-hidden border border-white/10">
               <div className="grid grid-cols-1 lg:grid-cols-12">
                 
@@ -2976,9 +3095,10 @@ export default function App() {
                   {/* Step 1: Ride Details */}
                   {step === 1 && (
                     <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      {bookingError && (
-                        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3.5 rounded-xl text-xs md:text-sm font-medium animate-in fade-in duration-300">
-                          {bookingError}
+                      {(step1Error || bookingError) && (
+                        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3.5 rounded-xl text-xs md:text-sm font-medium animate-in fade-in duration-300 flex items-center gap-2.5">
+                          <AlertCircle size={18} className="shrink-0 text-red-500" />
+                          <span>{step1Error || bookingError}</span>
                         </div>
                       )}
                       
@@ -2987,7 +3107,7 @@ export default function App() {
                         
                         <div className="relative border border-stone-300 rounded-xl bg-white overflow-visible">
                           {/* Pickup Field */}
-                          <motion.div layout className={`relative ${suggestions.pickup.length > 0 ? 'z-40' : 'z-20'}`}>
+                          <motion.div ref={pickupContainerRef} layout className={`relative ${suggestions.pickup.length > 0 ? "z-40" : "z-20"}`}>
                             <div className="relative">
                               <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-800" size={18} />
                               <input 
@@ -2997,7 +3117,7 @@ export default function App() {
                                 onChange={(e) => {
                                   setBookingData(prev => ({ ...prev, pickup: e.target.value, pickupCoords: null }));
                                   searchAddress(e.target.value, 'pickup');
-                                  if (bookingError) setBookingError(null);
+                                  if (bookingError) setBookingError(null); if (step1Error) setStep1Error(null);
                                 }}
                                 placeholder={t('pickup_placeholder')} 
                                 className="w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-4 text-stone-950 text-[16px] font-medium placeholder:text-stone-700/90 focus:ring-0 outline-none transition-all"
@@ -3043,7 +3163,7 @@ export default function App() {
                               </div>
 
                               {/* Dropoff Field */}
-                              <motion.div layout className={`relative ${suggestions.dropoff.length > 0 ? 'z-40' : 'z-10'}`}>
+                              <motion.div ref={dropoffContainerRef} layout className={`relative ${suggestions.dropoff.length > 0 ? "z-40" : "z-10"}`}>
                                 <div className="relative">
                                   <Navigation className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-800" size={18} />
                                   <input 
@@ -3053,7 +3173,7 @@ export default function App() {
                                     onChange={(e) => {
                                       setBookingData(prev => ({ ...prev, dropoff: e.target.value, dropoffCoords: null }));
                                       searchAddress(e.target.value, 'dropoff');
-                                      if (bookingError) setBookingError(null);
+                                      if (bookingError) setBookingError(null); if (step1Error) setStep1Error(null);
                                     }}
                                     placeholder={t('dropoff_placeholder')} 
                                     className="w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-4 text-stone-950 text-[16px] font-medium placeholder:text-stone-700/90 focus:ring-0 outline-none transition-all"
@@ -3117,7 +3237,7 @@ export default function App() {
                               min={new Date().toISOString().split('T')[0]}
                               onChange={(e) => {
                                 setBookingData(prev => ({ ...prev, date: e.target.value }));
-                                if (bookingError) setBookingError(null);
+                                if (bookingError) setBookingError(null); if (step1Error) setStep1Error(null);
                               }}
                               required
                               className={`w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-4 font-medium placeholder:text-stone-700/90 focus:ring-0 outline-none cursor-pointer text-[16px] appearance-none ${bookingData.date ? 'text-stone-950' : 'text-stone-700/90'}`}
@@ -3130,7 +3250,7 @@ export default function App() {
                               value={bookingData.time}
                               onChange={(e) => {
                                 setBookingData(prev => ({ ...prev, time: e.target.value }));
-                                if (bookingError) setBookingError(null);
+                                if (bookingError) setBookingError(null); if (step1Error) setStep1Error(null);
                               }}
                               aria-label={lang === 'fr' ? 'Sélectionner l\'heure de prise en charge' : lang === 'es' ? 'Seleccionar hora de recogida' : 'Select pickup time'}
                               className={`w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-10 font-medium focus:ring-0 outline-none appearance-none cursor-pointer text-[16px] ${bookingData.time ? 'text-stone-950' : 'text-stone-700/90'}`}
@@ -3187,7 +3307,7 @@ export default function App() {
                                   min={bookingData.date || new Date().toISOString().split('T')[0]}
                                   onChange={(e) => {
                                     setBookingData(prev => ({ ...prev, returnDate: e.target.value }));
-                                    if (bookingError) setBookingError(null);
+                                    if (bookingError) setBookingError(null); if (step1Error) setStep1Error(null);
                                   }}
                                   required={bookingData.isReturnTrip}
                                   className={`w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-4 font-medium placeholder:text-stone-700/90 focus:ring-0 outline-none cursor-pointer text-[16px] appearance-none ${bookingData.returnDate ? 'text-stone-950' : 'text-stone-700/90'}`}
@@ -3200,7 +3320,7 @@ export default function App() {
                                   value={bookingData.returnTime}
                                   onChange={(e) => {
                                     setBookingData(prev => ({ ...prev, returnTime: e.target.value }));
-                                    if (bookingError) setBookingError(null);
+                                    if (bookingError) setBookingError(null); if (step1Error) setStep1Error(null);
                                   }}
                                   aria-label={lang === 'fr' ? 'Sélectionner l\'heure de retour' : lang === 'es' ? 'Seleccionar hora de vuelta' : 'Select a return time'}
                                   className={`w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-10 font-medium focus:ring-0 outline-none appearance-none cursor-pointer text-[16px] ${bookingData.returnTime ? 'text-stone-950' : 'text-stone-700/90'}`}

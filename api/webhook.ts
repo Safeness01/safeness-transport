@@ -65,6 +65,9 @@ export default async function handler(req: Request, res: Response) {
     if (metadata) {
       const resend = getResend();
       const amount = session.amount_total ? (session.amount_total / 100).toFixed(2) : "0.00";
+      const dateTimeFormatted = `${metadata.date ? `${metadata.date} à ` : ''}${metadata.time || 'Non spécifié'}`;
+      const returnDateTimeFormatted = `${metadata.returnDate ? `${metadata.returnDate} à ` : ''}${metadata.returnTime || 'Non spécifié'}`;
+      const isReturn = metadata.isReturnTrip === 'true';
 
       try {
         // Email for the customer
@@ -82,12 +85,12 @@ export default async function handler(req: Request, res: Response) {
                 ? `<p><strong>Durée :</strong> ${metadata.durationHours} heures</p>`
                 : `<p><strong>Arrivée :</strong> ${metadata.dropoff}</p>`
               }
-              <p><strong>Date/Heure :</strong> ${metadata.time}</p>
+              <p><strong>Date & Heure :</strong> ${dateTimeFormatted}</p>
               <p><strong>Véhicule :</strong> ${metadata.vehicle}</p>
               <p><strong>Passagers :</strong> ${metadata.passengers}</p>
               <p><strong>Bagages :</strong> ${metadata.luggage}</p>
               <p><strong>Extras :</strong> ${metadata.extras}</p>
-              ${metadata.serviceType === 'transfer' ? `<p><strong>Trajet retour :</strong> ${metadata.isReturnTrip === 'true' ? 'Oui' : 'Non'}</p>` : ''}
+              ${metadata.serviceType === 'transfer' && isReturn ? `<p><strong>Trajet retour :</strong> Oui (${returnDateTimeFormatted})</p>` : ''}
               <hr />
               <p><strong>Prix total payé :</strong> ${amount} €</p>
               <p>Un chauffeur vous contactera peu avant l'heure prévue.</p>
@@ -116,12 +119,12 @@ export default async function handler(req: Request, res: Response) {
                 ? `<p><strong>Durée :</strong> ${metadata.durationHours} heures</p>`
                 : `<p><strong>Arrivée :</strong> ${metadata.dropoff}</p>`
               }
-              <p><strong>Date/Heure :</strong> ${metadata.time}</p>
+              <p><strong>Date / Heure :</strong> ${dateTimeFormatted}</p>
               <p><strong>Véhicule :</strong> ${metadata.vehicle}</p>
               <p><strong>Passagers :</strong> ${metadata.passengers}</p>
               <p><strong>Bagages :</strong> ${metadata.luggage}</p>
               <p><strong>Extras :</strong> ${metadata.extras}</p>
-              ${metadata.serviceType === 'transfer' ? `<p><strong>Trajet retour :</strong> ${metadata.isReturnTrip === 'true' ? 'Oui' : 'Non'}</p>` : ''}
+              ${metadata.serviceType === 'transfer' && isReturn ? `<p><strong>Trajet retour :</strong> Oui (${returnDateTimeFormatted})</p>` : ''}
               <hr />
               <p><strong>Montant payé :</strong> ${amount} €</p>
             </div>
@@ -140,12 +143,12 @@ ${metadata.serviceType === 'hourly'
   ? `Durée : ${metadata.durationHours} heures`
   : `Arrivée : ${metadata.dropoff}`
 }
-Date/Heure : ${metadata.time}
+Date / Heure : ${dateTimeFormatted}
 Véhicule : ${metadata.vehicle}
 Passagers : ${metadata.passengers}
 Bagages : ${metadata.luggage}
 Extras : ${metadata.extras}
-${metadata.serviceType === 'transfer' ? `Trajet retour : ${metadata.isReturnTrip === 'true' ? 'Oui' : 'Non'}` : ''}
+${metadata.serviceType === 'transfer' && isReturn ? `Trajet retour : Oui (${returnDateTimeFormatted})` : ''}
 --
 Montant payé : ${amount} €`,
         });

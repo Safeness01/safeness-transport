@@ -37,7 +37,7 @@ async function startServer() {
   app.post("/api/cash-booking", cashBookingHandler);
   app.all("/api/webhook", webhookHandler);
   app.get("/api/verify-session", verifyHandler);
-  
+
   // Health check
   app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
@@ -47,13 +47,13 @@ async function startServer() {
       server: { middlewareMode: true },
       appType: "spa",
     });
-    
+
     app.use(vite.middlewares);
-    
+
     // Explicitly handle SPA fallback in dev mode if needed
     app.get('*', async (req, res, next) => {
       if (req.originalUrl.startsWith('/api')) return next();
-      
+
       try {
         let template = fs.readFileSync(path.resolve(process.cwd(), 'index.html'), 'utf-8');
         template = await vite.transformIndexHtml(req.originalUrl, template);
@@ -62,7 +62,6 @@ async function startServer() {
         next(e);
       }
     });
-
   } else {
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));

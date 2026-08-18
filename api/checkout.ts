@@ -70,6 +70,14 @@ export default async function handler(req: Request, res: Response) {
       return res.status(400).json({ error: "Valid vehicle type is required" });
     }
 
+    if (!phone || phone.replace(/\D/g, '').length < 6) {
+      return res.status(400).json({ error: "Valid phone number is required (at least 6 digits)" });
+    }
+
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ error: "Valid email is required" });
+    }
+
     // Calculation logic (matching App.tsx)
     const selectedVehicle = vehicles[vehicle] || vehicles.eco;
     
@@ -82,20 +90,33 @@ export default async function handler(req: Request, res: Response) {
       baseTripPrice = selectedVehicle.startFee + ((distance || 0) * selectedVehicle.kmPrice);
     }
 
-    // Majoration de Nuit (22h00 - 06h00) : +20% sur le trajet
+    // Majoration de Nuit Aller (22h00 - 06h00) : +20% sur le trajet aller
+    let outboundPrice = baseTripPrice;
     if (time) {
       const match = time.match(/^(\d{1,2}):/);
       if (match) {
         const hour = parseInt(match[1], 10);
         if (hour >= 22 || hour < 6) {
-          baseTripPrice *= 1.20;
+          outboundPrice = baseTripPrice * 1.20;
         }
       }
     }
 
-    // Option Aller-Retour : Calcul de l'aller + retour avec -10% de remise globale
+    let totalTripsPrice = outboundPrice;
+
+    // Option Aller-Retour : Calcul séparé de l'aller et du retour selon leurs heures respectives, avec -10% de remise globale
     if (serviceType === 'transfer' && isReturnTrip) {
-      baseTripPrice = (baseTripPrice * 2) * 0.90;
+      let inboundPrice = baseTripPrice;
+      if (returnTime) {
+        const matchRet = returnTime.match(/^(\d{1,2}):/);
+        if (matchRet) {
+          const hourRet = parseInt(matchRet[1], 10);
+          if (hourRet >= 22 || hourRet < 6) {
+            inboundPrice = baseTripPrice * 1.20;
+          }
+        }
+      }
+      totalTripsPrice = (outboundPrice + inboundPrice) * 0.90;
     }
 
     // Extras
@@ -109,7 +130,7 @@ export default async function handler(req: Request, res: Response) {
       extrasPrice += 10;
     }
 
-    const calculatedPrice = baseTripPrice + extrasPrice;
+    const calculatedPrice = totalTripsPrice + extrasPrice;
     const finalAmount = Math.round(calculatedPrice);
 
     const stripe = getStripe();

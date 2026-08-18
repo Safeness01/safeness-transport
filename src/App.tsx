@@ -10,7 +10,7 @@ import { setOptions, importLibrary } from '@googlemaps/js-api-loader';
 import { 
   MapPin, Navigation, Calendar, Clock, Users, User, Briefcase, Building2,
   ChevronRight, ChevronLeft, ChevronDown, ArrowUpRight, Check, CreditCard, Banknote, Plane, Tag, Sparkles, Palette,
-  Train, Info, ShieldCheck, Star, ArrowRight, ArrowLeft, X, Menu, Plus,
+  Train, Info, ShieldCheck, Star, ArrowRight, ArrowLeft, X, Menu, Plus, Minus,
   Phone, Mail, MessageSquare, Globe, Search, Loader2,
   Instagram, Facebook, ArrowLeftRight, ArrowUpDown, RotateCcw, ArrowUp,
   AlertCircle
@@ -191,6 +191,7 @@ export default function App() {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [activeBentoCard, setActiveBentoCard] = useState<string | null>(null);
   const [activeTransferCard, setActiveTransferCard] = useState<number | null>(null);
+  const [showFlightField, setShowFlightField] = useState(false);
   const bookingRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -406,7 +407,6 @@ export default function App() {
   const timeSelectRef = useRef<HTMLSelectElement>(null);
   const returnDateInputRef = useRef<HTMLInputElement>(null);
   const returnTimeSelectRef = useRef<HTMLSelectElement>(null);
-  const [step1InvalidField, setStep1InvalidField] = useState<'pickup' | 'dropoff' | 'date' | 'time' | 'returnDate' | 'returnTime' | null>(null);
   const firstNameRef = useRef<HTMLInputElement>(null);
   const lastNameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -448,6 +448,29 @@ export default function App() {
       }
     }
   }, [bookingData.dropoff, bookingData.dropoffCoords, lang]);
+
+  useEffect(() => {
+    if (phoneRef.current) {
+      const rawPhone = bookingData.phone.trim();
+      if (rawPhone === "") {
+        phoneRef.current.setCustomValidity("");
+      } else {
+        const digitsOnly = rawPhone.replace(/\D/g, "");
+        const isValidFormat = /^[0-9\s.\-]{6,15}$/.test(rawPhone) && digitsOnly.length >= 6 && digitsOnly.length <= 15;
+        if (!isValidFormat) {
+          phoneRef.current.setCustomValidity(
+            lang === 'fr' 
+              ? "Veuillez saisir un numéro de téléphone valide (entre 6 et 15 chiffres)." 
+              : lang === 'es' 
+              ? "Por favor, introduzca un número de teléfono válido (entre 6 y 15 dígitos)." 
+              : "Please enter a valid phone number (between 6 and 15 digits)."
+          );
+        } else {
+          phoneRef.current.setCustomValidity("");
+        }
+      }
+    }
+  }, [bookingData.phone, lang]);
 
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map | null>(null);
@@ -546,47 +569,60 @@ export default function App() {
 
   // --- Booking Form Logic ---
 
-  const triggerStep1FieldError = (field: 'pickup' | 'dropoff' | 'date' | 'time' | 'returnDate' | 'returnTime', ref: React.RefObject<HTMLElement | null>) => {
-    setStep1InvalidField(field);
-    if (ref.current) {
-      ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      if ('focus' in ref.current && typeof (ref.current as any).focus === 'function') {
-        setTimeout(() => {
-          (ref.current as any).focus();
-        }, 150);
-      }
-    }
-  };
-
   const handleNextStep1 = async () => {
     const { pickup, dropoff, pickupCoords, dropoffCoords, serviceType, date, time, isReturnTrip, returnDate, returnTime } = bookingData;
     
     setStep1Error(null);
     setBookingError(null);
-    setStep1InvalidField(null);
 
     // 1. Validation de l'adresse de départ
-    if (!pickup || pickup.trim() === '' || !pickupCoords) {
-      triggerStep1FieldError('pickup', pickupInputRef);
-      return;
+    if (pickupInputRef.current) {
+      if (!pickup || pickup.trim() === '') {
+        pickupInputRef.current.setCustomValidity('');
+        if (!pickupInputRef.current.reportValidity()) return;
+      } else if (!pickupCoords) {
+        pickupInputRef.current.setCustomValidity(
+          lang === 'fr' 
+            ? "Veuillez sélectionner une adresse dans la liste." 
+            : lang === 'es' 
+            ? "Por favor, seleccione una dirección de la lista." 
+            : "Please select an address from the list."
+        );
+        if (!pickupInputRef.current.reportValidity()) return;
+      } else {
+        pickupInputRef.current.setCustomValidity('');
+      }
     }
 
     // 2. Validation de l'adresse de destination en mode transfert
-    if (serviceType === 'transfer' && (!dropoff || dropoff.trim() === '' || !dropoffCoords)) {
-      triggerStep1FieldError('dropoff', dropoffInputRef);
-      return;
+    if (serviceType === 'transfer' && dropoffInputRef.current) {
+      if (!dropoff || dropoff.trim() === '') {
+        dropoffInputRef.current.setCustomValidity('');
+        if (!dropoffInputRef.current.reportValidity()) return;
+      } else if (!dropoffCoords) {
+        dropoffInputRef.current.setCustomValidity(
+          lang === 'fr' 
+            ? "Veuillez sélectionner une adresse dans la liste." 
+            : lang === 'es' 
+            ? "Por favor, seleccione una dirección de la lista." 
+            : "Please select an address from the list."
+        );
+        if (!dropoffInputRef.current.reportValidity()) return;
+      } else {
+        dropoffInputRef.current.setCustomValidity('');
+      }
     }
 
     // 3. Validation de la date de départ
-    if (!date) {
-      triggerStep1FieldError('date', dateInputRef);
-      return;
+    if (dateInputRef.current) {
+      dateInputRef.current.setCustomValidity('');
+      if (!dateInputRef.current.reportValidity()) return;
     }
 
     // 4. Validation de l'heure de départ
-    if (!time) {
-      triggerStep1FieldError('time', timeSelectRef);
-      return;
+    if (timeSelectRef.current) {
+      timeSelectRef.current.setCustomValidity('');
+      if (!timeSelectRef.current.reportValidity()) return;
     }
 
     // 5. Vérification que la date et l'heure ne sont pas dans le passé
@@ -594,30 +630,79 @@ export default function App() {
       const startTime = time.includes("-") ? time.split("-")[0].trim() : time.trim();
       const selectedDateTime = new Date(date + "T" + startTime);
       const now = new Date();
-      if (isNaN(selectedDateTime.getTime()) || selectedDateTime.getTime() < now.getTime() - 5 * 60 * 1000) {
-        triggerStep1FieldError('date', dateInputRef);
-        return;
-      }
-
-      // 6. Validation aller-retour
-      if (serviceType === "transfer" && isReturnTrip) {
-        if (!returnDate) {
-          triggerStep1FieldError('returnDate', returnDateInputRef);
-          return;
-        }
-        if (!returnTime) {
-          triggerStep1FieldError('returnTime', returnTimeSelectRef);
-          return;
-        }
-        const returnStartTime = returnTime.includes("-") ? returnTime.split("-")[0].trim() : returnTime.trim();
-        const returnDateTime = new Date(returnDate + "T" + returnStartTime);
-        if (isNaN(returnDateTime.getTime()) || returnDateTime.getTime() <= selectedDateTime.getTime()) {
-          triggerStep1FieldError('returnDate', returnDateInputRef);
-          return;
+      const todayStr = new Date().toLocaleDateString('en-CA');
+      if (!isNaN(selectedDateTime.getTime()) && selectedDateTime.getTime() < now.getTime() - 5 * 60 * 1000) {
+        if (date < todayStr) {
+          if (dateInputRef.current) {
+            dateInputRef.current.setCustomValidity(
+              lang === 'fr' 
+                ? "La date de départ ne peut pas être dans le passé." 
+                : lang === 'es' 
+                ? "La fecha de salida no puede estar en el pasado." 
+                : "Departure date cannot be in the past."
+            );
+            if (!dateInputRef.current.reportValidity()) return;
+          }
+        } else {
+          if (timeSelectRef.current) {
+            timeSelectRef.current.setCustomValidity(
+              lang === 'fr' 
+                ? "Ce créneau horaire est déjà passé. Veuillez choisir une heure ultérieure." 
+                : lang === 'es' 
+                ? "Esta hora ya ha pasado. Por favor, seleccione una hora posterior." 
+                : "This time slot is in the past. Please select a later time."
+            );
+            if (!timeSelectRef.current.reportValidity()) return;
+          }
         }
       }
     } catch {
       // ignore
+    }
+
+    // 6. Validation aller-retour
+    if (serviceType === 'transfer' && isReturnTrip) {
+      if (returnDateInputRef.current) {
+        returnDateInputRef.current.setCustomValidity('');
+        if (!returnDateInputRef.current.reportValidity()) return;
+      }
+      if (returnTimeSelectRef.current) {
+        returnTimeSelectRef.current.setCustomValidity('');
+        if (!returnTimeSelectRef.current.reportValidity()) return;
+      }
+      try {
+        const startTime = time.includes("-") ? time.split("-")[0].trim() : time.trim();
+        const selectedDateTime = new Date(date + "T" + startTime);
+        const returnStartTime = returnTime.includes("-") ? returnTime.split("-")[0].trim() : returnTime.trim();
+        const returnDateTime = new Date(returnDate + "T" + returnStartTime);
+        if (!isNaN(returnDateTime.getTime()) && !isNaN(selectedDateTime.getTime()) && returnDateTime.getTime() <= selectedDateTime.getTime()) {
+          if (returnDate < date) {
+            if (returnDateInputRef.current) {
+              returnDateInputRef.current.setCustomValidity(
+                lang === 'fr' 
+                  ? "La date de retour ne peut pas être antérieure à la date de départ." 
+                  : lang === 'es' 
+                  ? "La fecha de regreso no puede ser anterior a la fecha de salida." 
+                  : "Return date cannot be before departure date."
+              );
+              if (!returnDateInputRef.current.reportValidity()) return;
+            }
+          } else {
+            if (returnTimeSelectRef.current) {
+              returnTimeSelectRef.current.setCustomValidity(
+                lang === 'fr' 
+                  ? "L'heure de retour doit être postérieure à l'heure de départ." 
+                  : lang === 'es' 
+                  ? "La hora de regreso debe ser posterior a la hora de salida." 
+                  : "Return time must be after departure time."
+              );
+              if (!returnTimeSelectRef.current.reportValidity()) return;
+            }
+          }
+        }
+      } catch {
+        // ignore
+      }
     }
 
     setLoading(true);
@@ -644,6 +729,27 @@ export default function App() {
     van_v: { name: 'Mercedes Classe V', model: 'Mercedes-Benz Classe V', startFee: 55, kmPrice: 2.50, hourlyPrice: 90, pax: 7, bag: 7, img: 'https://i.ibb.co/cK654DjV/classe-v.png' },
     first: { name: 'Mercedes Classe S', model: 'Mercedes-Benz Classe S', startFee: 70, kmPrice: 3.00, hourlyPrice: 120, pax: 3, bag: 3, img: 'https://i.ibb.co/B7Vvx9F/classe-s.png' }
   };
+
+  // Automatically cap passengers and luggage when vehicle changes
+  useEffect(() => {
+    const selectedVeh = vehicles[bookingData.vehicle as keyof typeof vehicles];
+    if (selectedVeh) {
+      setBookingData(prev => {
+        let changed = false;
+        let newPax = prev.passengers;
+        let newLuggage = prev.luggage;
+        if (prev.passengers > selectedVeh.pax) {
+          newPax = selectedVeh.pax;
+          changed = true;
+        }
+        if (prev.luggage > selectedVeh.bag) {
+          newLuggage = selectedVeh.bag;
+          changed = true;
+        }
+        return changed ? { ...prev, passengers: newPax, luggage: newLuggage } : prev;
+      });
+    }
+  }, [bookingData.vehicle]);
 
   const extras = {
     child_seat: { name: 'Siège Bébé', price: 5 },
@@ -1643,7 +1749,6 @@ export default function App() {
   const selectAddress = (item: any, type: 'pickup' | 'dropoff' | 'returnPickup' | 'returnDropoff') => {
     const applyCoordsAndAddress = (coords: [number, number], address: string) => {
       setStep1Error(null);
-      setStep1InvalidField(null);
       setBookingData(prev => ({
         ...prev,
         [type]: address,
@@ -1714,6 +1819,7 @@ export default function App() {
       durationHours: number;
       time: string;
       isReturnTrip: boolean;
+      returnTime?: string;
       extras: string[];
       luggage: number;
     }
@@ -1731,22 +1837,32 @@ export default function App() {
       baseTripPrice = v.startFee + (km * v.kmPrice);
     }
 
-    // Majoration de Nuit (22h00 - 06h00) : +20% sur le trajet
-    let hour = -1;
+    // Majoration de Nuit Aller (22h00 - 06h00) : +20% sur le trajet aller
+    let hourOut = -1;
     if (data.time) {
       const match = data.time.match(/^(\d{1,2}):/);
       if (match) {
-        hour = parseInt(match[1], 10);
+        hourOut = parseInt(match[1], 10);
       }
     }
-    const isNight = hour >= 0 && (hour >= 22 || hour < 6);
-    if (isNight) {
-      baseTripPrice *= 1.20;
-    }
+    const isNightOut = hourOut >= 0 && (hourOut >= 22 || hourOut < 6);
+    const outboundPrice = isNightOut ? baseTripPrice * 1.20 : baseTripPrice;
 
-    // Option Aller-Retour : Calcul de l'aller + retour avec -10% de remise globale
+    let totalTripsPrice = outboundPrice;
+
+    // Option Aller-Retour : Calcul séparé de l'aller et du retour selon leurs heures respectives, avec -10% de remise globale
     if (data.serviceType === 'transfer' && data.isReturnTrip) {
-      baseTripPrice = (baseTripPrice * 2) * 0.90;
+      let hourReturn = -1;
+      if (data.returnTime) {
+        const matchRet = data.returnTime.match(/^(\d{1,2}):/);
+        if (matchRet) {
+          hourReturn = parseInt(matchRet[1], 10);
+        }
+      }
+      const isNightReturn = hourReturn >= 0 && (hourReturn >= 22 || hourReturn < 6);
+      const inboundPrice = isNightReturn ? baseTripPrice * 1.20 : baseTripPrice;
+
+      totalTripsPrice = (outboundPrice + inboundPrice) * 0.90;
     }
 
     // Options Supplémentaires
@@ -1761,7 +1877,7 @@ export default function App() {
       extrasPrice += 10; // Bagages volumineux (> 3 bagages) +10 €
     }
 
-    const finalTotal = baseTripPrice + extrasPrice;
+    const finalTotal = totalTripsPrice + extrasPrice;
     return Math.round(finalTotal * 100) / 100;
   }, [vehicles]);
 
@@ -1775,6 +1891,15 @@ export default function App() {
     if (!lastNameRef.current?.reportValidity()) return;
     if (!emailRef.current?.reportValidity()) return;
     if (!phoneRef.current?.reportValidity()) return;
+
+    const digitsOnly = bookingData.phone.replace(/\D/g, '');
+    if (digitsOnly.length < 6 || digitsOnly.length > 15) {
+      if (phoneRef.current) {
+        phoneRef.current.focus();
+        phoneRef.current.reportValidity();
+      }
+      return;
+    }
 
     setLoading(true);
     setBookingError(null);
@@ -3098,15 +3223,11 @@ export default function App() {
                       <div className="space-y-2 relative flex flex-col pt-3.5 md:pt-0">
                         <label className="text-xs font-bold text-stone-900 uppercase tracking-wider ml-1">{t('itinerary_label')}</label>
                         
-                        <div className={`relative border rounded-xl bg-white overflow-visible transition-all duration-300 ${
-                          step1InvalidField === 'pickup' || step1InvalidField === 'dropoff'
-                            ? 'border-red-500 ring-2 ring-red-500/20 shadow-sm'
-                            : 'border-stone-300'
-                        }`}>
+                        <div className="relative border border-stone-300 rounded-xl bg-white overflow-visible transition-all duration-300">
                           {/* Pickup Field */}
                           <motion.div ref={pickupContainerRef} layout className={`relative ${suggestions.pickup.length > 0 ? "z-40" : "z-20"}`}>
                             <div className="relative">
-                              <MapPin className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${step1InvalidField === 'pickup' ? 'text-red-500' : 'text-stone-800'}`} size={18} />
+                              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-800 transition-colors" size={18} />
                               <input 
                                 ref={pickupInputRef}
                                 type="text" 
@@ -3116,11 +3237,8 @@ export default function App() {
                                   searchAddress(e.target.value, 'pickup');
                                   if (bookingError) setBookingError(null);
                                   if (step1Error) setStep1Error(null);
-                                  if (step1InvalidField === 'pickup') setStep1InvalidField(null);
                                 }}
-                                onFocus={() => {
-                                  if (step1InvalidField === 'pickup') setStep1InvalidField(null);
-                                }}
+                                required
                                 placeholder={t('pickup_placeholder')} 
                                 className="w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-4 text-stone-950 text-[16px] font-medium placeholder:text-stone-700/90 focus:ring-0 outline-none transition-all"
                               />
@@ -3167,7 +3285,7 @@ export default function App() {
                               {/* Dropoff Field */}
                               <motion.div ref={dropoffContainerRef} layout className={`relative ${suggestions.dropoff.length > 0 ? "z-40" : "z-10"}`}>
                                 <div className="relative">
-                                  <Navigation className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${step1InvalidField === 'dropoff' ? 'text-red-500' : 'text-stone-800'}`} size={18} />
+                                  <Navigation className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-800 transition-colors" size={18} />
                                   <input 
                                     ref={dropoffInputRef}
                                     type="text" 
@@ -3177,11 +3295,8 @@ export default function App() {
                                       searchAddress(e.target.value, 'dropoff');
                                       if (bookingError) setBookingError(null);
                                       if (step1Error) setStep1Error(null);
-                                      if (step1InvalidField === 'dropoff') setStep1InvalidField(null);
                                     }}
-                                    onFocus={() => {
-                                      if (step1InvalidField === 'dropoff') setStep1InvalidField(null);
-                                    }}
+                                    required={bookingData.serviceType === 'transfer'}
                                     placeholder={t('dropoff_placeholder')} 
                                     className="w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-4 text-stone-950 text-[16px] font-medium placeholder:text-stone-700/90 focus:ring-0 outline-none transition-all"
                                   />
@@ -3233,14 +3348,10 @@ export default function App() {
                         <label className="text-xs font-bold text-stone-900 uppercase tracking-wider ml-1">
                           {lang === 'fr' ? 'Date & Heure' : lang === 'es' ? 'Fecha y hora' : 'Date & Time'}
                         </label>
-                        <div className={`flex flex-col md:flex-row border rounded-xl bg-white overflow-hidden divide-y md:divide-y-0 md:divide-x divide-stone-200 transition-all duration-300 ${
-                          step1InvalidField === 'date' || step1InvalidField === 'time'
-                            ? 'border-red-500 ring-2 ring-red-500/20 shadow-sm'
-                            : 'border-stone-300'
-                        }`}>
+                        <div className="flex flex-col md:flex-row border border-stone-300 rounded-xl bg-white overflow-hidden divide-y md:divide-y-0 md:divide-x divide-stone-200 transition-all duration-300">
                           {/* Date Selector */}
-                          <div className={`relative flex items-center md:flex-1 transition-colors ${step1InvalidField === 'date' ? 'bg-red-50/30' : ''}`}>
-                            <Calendar size={18} className={`absolute left-4 pointer-events-none transition-colors ${step1InvalidField === 'date' ? 'text-red-500' : 'text-stone-800'}`} />
+                          <div className="relative flex items-center md:flex-1">
+                            <Calendar size={18} className="absolute left-4 pointer-events-none text-stone-800" />
                             <input
                               ref={dateInputRef}
                               type="date"
@@ -3248,33 +3359,28 @@ export default function App() {
                               value={bookingData.date}
                               min={new Date().toISOString().split('T')[0]}
                               onChange={(e) => {
+                                e.target.setCustomValidity('');
                                 setBookingData(prev => ({ ...prev, date: e.target.value }));
                                 if (bookingError) setBookingError(null);
                                 if (step1Error) setStep1Error(null);
-                                if (step1InvalidField === 'date') setStep1InvalidField(null);
-                              }}
-                              onFocus={() => {
-                                if (step1InvalidField === 'date') setStep1InvalidField(null);
                               }}
                               required
                               className={`w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-4 font-medium placeholder:text-stone-700/90 focus:ring-0 outline-none cursor-pointer text-[16px] appearance-none ${bookingData.date ? 'text-stone-950' : 'text-stone-700/90'}`}
                             />
                           </div>
                           {/* Time Selector */}
-                          <div className={`relative flex items-center md:flex-1 transition-colors ${step1InvalidField === 'time' ? 'bg-red-50/30' : ''}`}>
-                            <Clock size={18} className={`absolute left-4 pointer-events-none transition-colors ${step1InvalidField === 'time' ? 'text-red-500' : 'text-stone-800'}`} />
+                          <div className="relative flex items-center md:flex-1">
+                            <Clock size={18} className="absolute left-4 pointer-events-none text-stone-800" />
                             <select 
                               ref={timeSelectRef}
                               value={bookingData.time}
                               onChange={(e) => {
+                                e.target.setCustomValidity('');
                                 setBookingData(prev => ({ ...prev, time: e.target.value }));
                                 if (bookingError) setBookingError(null);
                                 if (step1Error) setStep1Error(null);
-                                if (step1InvalidField === 'time') setStep1InvalidField(null);
                               }}
-                              onFocus={() => {
-                                if (step1InvalidField === 'time') setStep1InvalidField(null);
-                              }}
+                              required
                               aria-label={lang === 'fr' ? 'Sélectionner l\'heure de prise en charge' : lang === 'es' ? 'Seleccionar hora de recogida' : 'Select pickup time'}
                               className={`w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-10 font-medium focus:ring-0 outline-none appearance-none cursor-pointer text-[16px] ${bookingData.time ? 'text-stone-950' : 'text-stone-700/90'}`}
                             >
@@ -3305,7 +3411,12 @@ export default function App() {
                               <RotateCcw size={18} />
                             </div>
                             <div className="text-left">
-                              <div className="text-sm font-bold text-stone-900">{t('returnTrip')}</div>
+                              <div className="text-sm font-bold text-stone-900 flex items-center gap-2">
+                                <span>{t('returnTrip')}</span>
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-300 shadow-2xs">
+                                  -10%
+                                </span>
+                              </div>
                               <div className="text-[10px] text-stone-400 uppercase tracking-wider font-medium">{t('add_return')}</div>
                             </div>
                           </div>
@@ -3319,14 +3430,10 @@ export default function App() {
                             <label className="text-xs font-bold text-stone-900 uppercase tracking-wider ml-1">
                               {lang === 'fr' ? 'Date & Heure de retour' : lang === 'es' ? 'Fecha y hora de vuelta' : 'Return Date & Time'}
                             </label>
-                            <div className={`flex flex-col md:flex-row border rounded-xl bg-white overflow-hidden divide-y md:divide-y-0 md:divide-x divide-stone-200 transition-all duration-300 ${
-                              step1InvalidField === 'returnDate' || step1InvalidField === 'returnTime'
-                                ? 'border-red-500 ring-2 ring-red-500/20 shadow-sm'
-                                : 'border-stone-300'
-                            }`}>
+                            <div className="flex flex-col md:flex-row border border-stone-300 rounded-xl bg-white overflow-hidden divide-y md:divide-y-0 md:divide-x divide-stone-200 transition-all duration-300">
                               {/* Return Date Selector */}
-                              <div className={`relative flex items-center md:flex-1 transition-colors ${step1InvalidField === 'returnDate' ? 'bg-red-50/30' : ''}`}>
-                                <Calendar size={18} className={`absolute left-4 pointer-events-none transition-colors ${step1InvalidField === 'returnDate' ? 'text-red-500' : 'text-stone-800'}`} />
+                              <div className="relative flex items-center md:flex-1">
+                                <Calendar size={18} className="absolute left-4 pointer-events-none text-stone-800" />
                                 <input
                                   ref={returnDateInputRef}
                                   type="date"
@@ -3334,33 +3441,28 @@ export default function App() {
                                   value={bookingData.returnDate}
                                   min={bookingData.date || new Date().toISOString().split('T')[0]}
                                   onChange={(e) => {
+                                    e.target.setCustomValidity('');
                                     setBookingData(prev => ({ ...prev, returnDate: e.target.value }));
                                     if (bookingError) setBookingError(null);
                                     if (step1Error) setStep1Error(null);
-                                    if (step1InvalidField === 'returnDate') setStep1InvalidField(null);
-                                  }}
-                                  onFocus={() => {
-                                    if (step1InvalidField === 'returnDate') setStep1InvalidField(null);
                                   }}
                                   required={bookingData.isReturnTrip}
                                   className={`w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-4 font-medium placeholder:text-stone-700/90 focus:ring-0 outline-none cursor-pointer text-[16px] appearance-none ${bookingData.returnDate ? 'text-stone-950' : 'text-stone-700/90'}`}
                                 />
                               </div>
                               {/* Return Time Selector */}
-                              <div className={`relative flex items-center md:flex-1 transition-colors ${step1InvalidField === 'returnTime' ? 'bg-red-50/30' : ''}`}>
-                                <Clock size={18} className={`absolute left-4 pointer-events-none transition-colors ${step1InvalidField === 'returnTime' ? 'text-red-500' : 'text-stone-800'}`} />
+                              <div className="relative flex items-center md:flex-1">
+                                <Clock size={18} className="absolute left-4 pointer-events-none text-stone-800" />
                                 <select 
                                   ref={returnTimeSelectRef}
                                   value={bookingData.returnTime}
                                   onChange={(e) => {
+                                    e.target.setCustomValidity('');
                                     setBookingData(prev => ({ ...prev, returnTime: e.target.value }));
                                     if (bookingError) setBookingError(null);
                                     if (step1Error) setStep1Error(null);
-                                    if (step1InvalidField === 'returnTime') setStep1InvalidField(null);
                                   }}
-                                  onFocus={() => {
-                                    if (step1InvalidField === 'returnTime') setStep1InvalidField(null);
-                                  }}
+                                  required={bookingData.isReturnTrip}
                                   aria-label={lang === 'fr' ? 'Sélectionner l\'heure de retour' : lang === 'es' ? 'Seleccionar hora de vuelta' : 'Select a return time'}
                                   className={`w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-10 font-medium focus:ring-0 outline-none appearance-none cursor-pointer text-[16px] ${bookingData.returnTime ? 'text-stone-950' : 'text-stone-700/90'}`}
                                 >
@@ -3498,7 +3600,7 @@ export default function App() {
 
                   {/* Step 3: Contact & Recap */}
                   {step === 3 && (
-                    <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="space-y-4 md:space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
                       <div className="grid grid-cols-2 gap-3 md:gap-4">
                         <div className="space-y-2">
                           <label className="text-xs font-bold text-stone-900 uppercase tracking-wider ml-1">{t('firstName')}</label>
@@ -3564,7 +3666,14 @@ export default function App() {
                               type="tel" 
                               required
                               value={bookingData.phone}
-                              onChange={(e) => setBookingData(prev => ({ ...prev, phone: e.target.value }))}
+                              onChange={(e) => {
+                                const val = e.target.value.replace(/[^0-9\s.\-]/g, '');
+                                setBookingData(prev => ({ ...prev, phone: val }));
+                              }}
+                              pattern="[0-9\s.\-]{6,15}"
+                              minLength={6}
+                              maxLength={15}
+                              title={lang === 'fr' ? "Veuillez saisir un numéro de téléphone valide (entre 6 et 15 chiffres/caractères)." : lang === 'es' ? "Por favor ingrese un número de teléfono válido (entre 6 y 15 dígitos/caracteres)." : "Please enter a valid phone number (between 6 and 15 digits/characters)."}
                               placeholder={t('placeholder_phone')}
                               className="w-full bg-transparent py-3 md:py-4 px-4 text-stone-950 font-medium placeholder:text-stone-700/95 outline-none"
                             />
@@ -3572,7 +3681,7 @@ export default function App() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3 md:gap-4">
+                      <div className="grid grid-cols-2 gap-3 md:gap-4 pt-1 md:pt-1.5">
                         {/* Passengers Selector */}
                         <div className="space-y-2 relative flex flex-col">
                           <label className="text-xs font-bold text-stone-900 uppercase tracking-wider ml-1 flex items-center gap-1.5">
@@ -3586,11 +3695,20 @@ export default function App() {
                               aria-label={t('passengers')}
                               className="w-full bg-transparent border-none py-3 md:py-4 pl-4 pr-10 font-semibold focus:ring-0 outline-none appearance-none cursor-pointer text-stone-950"
                             >
-                              {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
-                                <option key={n} value={n} className="text-stone-950 bg-white font-semibold">
-                                  {n} {n > 1 ? t('passenger_plural') : t('passenger_singular')}
-                                </option>
-                              ))}
+                              {[1, 2, 3, 4, 5, 6, 7, 8].map(n => {
+                                const maxCap = vehicles[bookingData.vehicle as keyof typeof vehicles]?.pax || 3;
+                                const isOverCap = n > maxCap;
+                                return (
+                                  <option 
+                                    key={n} 
+                                    value={n} 
+                                    disabled={isOverCap}
+                                    className={isOverCap ? "text-stone-400 bg-stone-100 font-normal" : "text-stone-950 bg-white font-semibold"}
+                                  >
+                                    {n} {n > 1 ? t('passenger_plural') : t('passenger_singular')}{isOverCap ? ` (max ${maxCap})` : ''}
+                                  </option>
+                                );
+                              })}
                             </select>
                             <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-stone-800">
                               <ChevronDown size={18} />
@@ -3611,11 +3729,20 @@ export default function App() {
                               aria-label={t('luggage')}
                               className="w-full bg-transparent border-none py-3 md:py-4 pl-4 pr-10 font-semibold focus:ring-0 outline-none appearance-none cursor-pointer text-stone-950"
                             >
-                              {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
-                                <option key={n} value={n} className="text-stone-950 bg-white font-semibold">
-                                  {n} {t('luggage_label')}
-                                </option>
-                              ))}
+                              {[1, 2, 3, 4, 5, 6, 7, 8].map(n => {
+                                const maxBag = vehicles[bookingData.vehicle as keyof typeof vehicles]?.bag || 3;
+                                const isOverCap = n > maxBag;
+                                return (
+                                  <option 
+                                    key={n} 
+                                    value={n} 
+                                    disabled={isOverCap}
+                                    className={isOverCap ? "text-stone-400 bg-stone-100 font-normal" : "text-stone-950 bg-white font-semibold"}
+                                  >
+                                    {n} {t('luggage_label')}{isOverCap ? ` (max ${maxBag})` : ''}
+                                  </option>
+                                );
+                              })}
                             </select>
                             <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-stone-800">
                               <ChevronDown size={18} />
@@ -3624,15 +3751,42 @@ export default function App() {
                         </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="text-xs font-bold text-stone-900 uppercase tracking-wider ml-1">{t('flight')}</label>
-                        <input 
-                          type="text" 
-                          value={bookingData.flightNumber}
-                          onChange={(e) => setBookingData(prev => ({ ...prev, flightNumber: e.target.value }))}
-                          placeholder={t('flight')}
-                          className="w-full bg-stone-50 border border-stone-300 rounded-xl py-3 md:py-4 px-4 text-stone-950 font-medium placeholder:text-stone-700/95 outline-none focus:border-stone-900 focus:bg-white transition-all"
-                        />
+                      {/* Collapsible Flight / Train Number (Optional) */}
+                      <div className="pt-0.5 space-y-2">
+                        <button
+                          type="button"
+                          onClick={() => setShowFlightField(prev => !prev)}
+                          className="inline-flex items-center gap-2 text-xs font-bold text-stone-900 hover:text-stone-950 uppercase tracking-wider transition-colors ml-1 cursor-pointer py-1 group select-none"
+                        >
+                          <Plane size={14} className="text-stone-800" />
+                          <span>{lang === 'fr' ? 'N° de vol / train (Facultatif)' : lang === 'es' ? 'Nº de vuelo / tren (Opcional)' : 'Flight / Train No. (Optional)'}</span>
+                          <span className="inline-flex items-center justify-center text-stone-500 group-hover:text-stone-900 transition-colors">
+                            {showFlightField || bookingData.flightNumber ? (
+                              <Minus size={14} strokeWidth={2.5} />
+                            ) : (
+                              <Plus size={14} strokeWidth={2.5} />
+                            )}
+                          </span>
+                        </button>
+
+                        {(showFlightField || bookingData.flightNumber) && (
+                          <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                            <input 
+                              type="text" 
+                              value={bookingData.flightNumber}
+                              onChange={(e) => setBookingData(prev => ({ ...prev, flightNumber: e.target.value }))}
+                              placeholder={lang === 'fr' ? 'Ex: AF1234, BA0304, TGV 6601...' : lang === 'es' ? 'Ej: AF1234, IB3166, AVE 2100...' : 'Ex: AF1234, BA0304, Eurostar 9012...'}
+                              className="w-full bg-stone-50 border border-stone-300 rounded-xl py-3 md:py-4 px-4 text-stone-950 font-medium placeholder:text-stone-700/95 outline-none focus:border-stone-900 focus:bg-white transition-all"
+                            />
+                            <p className="text-[11px] text-stone-500 font-normal ml-1">
+                              *{lang === 'fr' 
+                                ? "Indiquez votre numéro pour le suivi de votre vol par nos chauffeurs" 
+                                : lang === 'es' 
+                                ? "Indique su número para que nuestros conductores puedan seguir el vuelo" 
+                                : "Please provide your number so our drivers can track the flight."}
+                            </p>
+                          </div>
+                        )}
                       </div>
 
                       <div className="space-y-4 pt-6 border-t border-stone-100">

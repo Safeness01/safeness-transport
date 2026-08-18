@@ -340,6 +340,8 @@ export default function App() {
     return `${year}-${month}-${day}`;
   };
 
+  const todayStr = useMemo(() => getLocalDateString(), []);
+
   // Booking Form State
   const [bookingData, setBookingData] = useState({
     serviceType: 'transfer' as 'transfer' | 'hourly',
@@ -3357,10 +3359,23 @@ export default function App() {
                               type="date"
                               placeholder={lang === 'fr' ? 'Choisir une date' : lang === 'es' ? 'Seleccionar fecha' : 'Select a date'}
                               value={bookingData.date}
-                              min={new Date().toISOString().split('T')[0]}
+                              min={todayStr}
                               onChange={(e) => {
+                                const val = e.target.value;
                                 e.target.setCustomValidity('');
-                                setBookingData(prev => ({ ...prev, date: e.target.value }));
+                                if (val && val < todayStr) {
+                                  setBookingData(prev => ({ 
+                                    ...prev, 
+                                    date: todayStr,
+                                    returnDate: prev.returnDate && prev.returnDate < todayStr ? todayStr : prev.returnDate
+                                  }));
+                                } else {
+                                  setBookingData(prev => ({ 
+                                    ...prev, 
+                                    date: val,
+                                    returnDate: prev.returnDate && val && prev.returnDate < val ? val : prev.returnDate
+                                  }));
+                                }
                                 if (bookingError) setBookingError(null);
                                 if (step1Error) setStep1Error(null);
                               }}
@@ -3400,10 +3415,16 @@ export default function App() {
 
                       <div className="space-y-4 pt-1.5 md:pt-0">
                         <button 
-                          onClick={() => setBookingData(prev => ({ 
-                            ...prev, 
-                            isReturnTrip: !prev.isReturnTrip
-                          }))}
+                          onClick={() => setBookingData(prev => {
+                            const willBeReturn = !prev.isReturnTrip;
+                            return { 
+                              ...prev, 
+                              isReturnTrip: willBeReturn,
+                              returnDate: willBeReturn && (!prev.returnDate || prev.returnDate < (prev.date || todayStr))
+                                ? (prev.date || todayStr)
+                                : prev.returnDate
+                            };
+                          })}
                           className={`w-full flex items-center justify-between p-2.5 md:p-3.5 rounded-xl border-2 transition-all ${bookingData.isReturnTrip ? 'border-stone-900 bg-stone-50' : 'border-stone-100 bg-white hover:border-stone-200'}`}
                         >
                           <div className="flex items-center gap-3">
@@ -3439,10 +3460,16 @@ export default function App() {
                                   type="date"
                                   placeholder={lang === 'fr' ? 'Choisir une date de retour' : lang === 'es' ? 'Seleccionar fecha de vuelta' : 'Select a return date'}
                                   value={bookingData.returnDate}
-                                  min={bookingData.date || new Date().toISOString().split('T')[0]}
+                                  min={bookingData.date || todayStr}
                                   onChange={(e) => {
+                                    const val = e.target.value;
+                                    const minAllowed = bookingData.date || todayStr;
                                     e.target.setCustomValidity('');
-                                    setBookingData(prev => ({ ...prev, returnDate: e.target.value }));
+                                    if (val && val < minAllowed) {
+                                      setBookingData(prev => ({ ...prev, returnDate: minAllowed }));
+                                    } else {
+                                      setBookingData(prev => ({ ...prev, returnDate: val }));
+                                    }
                                     if (bookingError) setBookingError(null);
                                     if (step1Error) setStep1Error(null);
                                   }}

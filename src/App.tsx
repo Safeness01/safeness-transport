@@ -402,6 +402,11 @@ export default function App() {
   const dropoffInputRef = useRef<HTMLInputElement>(null);
   const pickupContainerRef = useRef<HTMLDivElement>(null);
   const dropoffContainerRef = useRef<HTMLDivElement>(null);
+  const dateInputRef = useRef<HTMLInputElement>(null);
+  const timeSelectRef = useRef<HTMLSelectElement>(null);
+  const returnDateInputRef = useRef<HTMLInputElement>(null);
+  const returnTimeSelectRef = useRef<HTMLSelectElement>(null);
+  const [step1InvalidField, setStep1InvalidField] = useState<'pickup' | 'dropoff' | 'date' | 'time' | 'returnDate' | 'returnTime' | null>(null);
   const firstNameRef = useRef<HTMLInputElement>(null);
   const lastNameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -541,44 +546,46 @@ export default function App() {
 
   // --- Booking Form Logic ---
 
+  const triggerStep1FieldError = (field: 'pickup' | 'dropoff' | 'date' | 'time' | 'returnDate' | 'returnTime', ref: React.RefObject<HTMLElement | null>) => {
+    setStep1InvalidField(field);
+    if (ref.current) {
+      ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if ('focus' in ref.current && typeof (ref.current as any).focus === 'function') {
+        setTimeout(() => {
+          (ref.current as any).focus();
+        }, 150);
+      }
+    }
+  };
+
   const handleNextStep1 = async () => {
     const { pickup, dropoff, pickupCoords, dropoffCoords, serviceType, date, time, isReturnTrip, returnDate, returnTime } = bookingData;
     
     setStep1Error(null);
     setBookingError(null);
+    setStep1InvalidField(null);
 
     // 1. Validation de l'adresse de départ
-    if (!pickup || pickup.trim() === '') {
-      setStep1Error("Veuillez renseigner une adresse de départ.");
+    if (!pickup || pickup.trim() === '' || !pickupCoords) {
+      triggerStep1FieldError('pickup', pickupInputRef);
       return;
     }
 
     // 2. Validation de l'adresse de destination en mode transfert
-    if (serviceType === 'transfer' && (!dropoff || dropoff.trim() === '')) {
-      setStep1Error("Veuillez renseigner une adresse de destination.");
-      return;
-    }
-
-    // Validation des coordonnées sélectionnées dans les suggestions
-    if (!pickupCoords) {
-      setStep1Error("Veuillez sélectionner une adresse de départ dans la liste de suggestions.");
-      return;
-    }
-
-    if (serviceType === 'transfer' && !dropoffCoords) {
-      setStep1Error("Veuillez sélectionner une adresse de destination dans la liste de suggestions.");
+    if (serviceType === 'transfer' && (!dropoff || dropoff.trim() === '' || !dropoffCoords)) {
+      triggerStep1FieldError('dropoff', dropoffInputRef);
       return;
     }
 
     // 3. Validation de la date de départ
     if (!date) {
-      setStep1Error("Veuillez sélectionner une date de prise en charge.");
+      triggerStep1FieldError('date', dateInputRef);
       return;
     }
 
     // 4. Validation de l'heure de départ
     if (!time) {
-      setStep1Error("Veuillez sélectionner une heure de prise en charge.");
+      triggerStep1FieldError('time', timeSelectRef);
       return;
     }
 
@@ -587,33 +594,25 @@ export default function App() {
       const startTime = time.includes("-") ? time.split("-")[0].trim() : time.trim();
       const selectedDateTime = new Date(date + "T" + startTime);
       const now = new Date();
-      if (isNaN(selectedDateTime.getTime())) {
-        setStep1Error("Date ou heure de prise en charge invalide.");
-        return;
-      }
-      if (selectedDateTime.getTime() < now.getTime() - 5 * 60 * 1000) {
-        setStep1Error("La date et l'heure de prise en charge ne peuvent pas être dans le passé.");
+      if (isNaN(selectedDateTime.getTime()) || selectedDateTime.getTime() < now.getTime() - 5 * 60 * 1000) {
+        triggerStep1FieldError('date', dateInputRef);
         return;
       }
 
       // 6. Validation aller-retour
       if (serviceType === "transfer" && isReturnTrip) {
         if (!returnDate) {
-          setStep1Error("Veuillez sélectionner une date pour le trajet retour.");
+          triggerStep1FieldError('returnDate', returnDateInputRef);
           return;
         }
         if (!returnTime) {
-          setStep1Error("Veuillez sélectionner une heure pour le trajet retour.");
+          triggerStep1FieldError('returnTime', returnTimeSelectRef);
           return;
         }
         const returnStartTime = returnTime.includes("-") ? returnTime.split("-")[0].trim() : returnTime.trim();
         const returnDateTime = new Date(returnDate + "T" + returnStartTime);
-        if (isNaN(returnDateTime.getTime())) {
-          setStep1Error("Date ou heure de retour invalide.");
-          return;
-        }
-        if (returnDateTime.getTime() <= selectedDateTime.getTime()) {
-          setStep1Error("La date et l'heure de retour doivent être postérieures au départ.");
+        if (isNaN(returnDateTime.getTime()) || returnDateTime.getTime() <= selectedDateTime.getTime()) {
+          triggerStep1FieldError('returnDate', returnDateInputRef);
           return;
         }
       }
@@ -1644,6 +1643,7 @@ export default function App() {
   const selectAddress = (item: any, type: 'pickup' | 'dropoff' | 'returnPickup' | 'returnDropoff') => {
     const applyCoordsAndAddress = (coords: [number, number], address: string) => {
       setStep1Error(null);
+      setStep1InvalidField(null);
       setBookingData(prev => ({
         ...prev,
         [type]: address,
@@ -3095,21 +3095,18 @@ export default function App() {
                   {/* Step 1: Ride Details */}
                   {step === 1 && (
                     <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      {(step1Error || bookingError) && (
-                        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3.5 rounded-xl text-xs md:text-sm font-medium animate-in fade-in duration-300 flex items-center gap-2.5">
-                          <AlertCircle size={18} className="shrink-0 text-red-500" />
-                          <span>{step1Error || bookingError}</span>
-                        </div>
-                      )}
-                      
                       <div className="space-y-2 relative flex flex-col pt-3.5 md:pt-0">
                         <label className="text-xs font-bold text-stone-900 uppercase tracking-wider ml-1">{t('itinerary_label')}</label>
                         
-                        <div className="relative border border-stone-300 rounded-xl bg-white overflow-visible">
+                        <div className={`relative border rounded-xl bg-white overflow-visible transition-all duration-300 ${
+                          step1InvalidField === 'pickup' || step1InvalidField === 'dropoff'
+                            ? 'border-red-500 ring-2 ring-red-500/20 shadow-sm'
+                            : 'border-stone-300'
+                        }`}>
                           {/* Pickup Field */}
                           <motion.div ref={pickupContainerRef} layout className={`relative ${suggestions.pickup.length > 0 ? "z-40" : "z-20"}`}>
                             <div className="relative">
-                              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-800" size={18} />
+                              <MapPin className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${step1InvalidField === 'pickup' ? 'text-red-500' : 'text-stone-800'}`} size={18} />
                               <input 
                                 ref={pickupInputRef}
                                 type="text" 
@@ -3117,7 +3114,12 @@ export default function App() {
                                 onChange={(e) => {
                                   setBookingData(prev => ({ ...prev, pickup: e.target.value, pickupCoords: null }));
                                   searchAddress(e.target.value, 'pickup');
-                                  if (bookingError) setBookingError(null); if (step1Error) setStep1Error(null);
+                                  if (bookingError) setBookingError(null);
+                                  if (step1Error) setStep1Error(null);
+                                  if (step1InvalidField === 'pickup') setStep1InvalidField(null);
+                                }}
+                                onFocus={() => {
+                                  if (step1InvalidField === 'pickup') setStep1InvalidField(null);
                                 }}
                                 placeholder={t('pickup_placeholder')} 
                                 className="w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-4 text-stone-950 text-[16px] font-medium placeholder:text-stone-700/90 focus:ring-0 outline-none transition-all"
@@ -3165,7 +3167,7 @@ export default function App() {
                               {/* Dropoff Field */}
                               <motion.div ref={dropoffContainerRef} layout className={`relative ${suggestions.dropoff.length > 0 ? "z-40" : "z-10"}`}>
                                 <div className="relative">
-                                  <Navigation className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-800" size={18} />
+                                  <Navigation className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${step1InvalidField === 'dropoff' ? 'text-red-500' : 'text-stone-800'}`} size={18} />
                                   <input 
                                     ref={dropoffInputRef}
                                     type="text" 
@@ -3173,7 +3175,12 @@ export default function App() {
                                     onChange={(e) => {
                                       setBookingData(prev => ({ ...prev, dropoff: e.target.value, dropoffCoords: null }));
                                       searchAddress(e.target.value, 'dropoff');
-                                      if (bookingError) setBookingError(null); if (step1Error) setStep1Error(null);
+                                      if (bookingError) setBookingError(null);
+                                      if (step1Error) setStep1Error(null);
+                                      if (step1InvalidField === 'dropoff') setStep1InvalidField(null);
+                                    }}
+                                    onFocus={() => {
+                                      if (step1InvalidField === 'dropoff') setStep1InvalidField(null);
                                     }}
                                     placeholder={t('dropoff_placeholder')} 
                                     className="w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-4 text-stone-950 text-[16px] font-medium placeholder:text-stone-700/90 focus:ring-0 outline-none transition-all"
@@ -3226,31 +3233,47 @@ export default function App() {
                         <label className="text-xs font-bold text-stone-900 uppercase tracking-wider ml-1">
                           {lang === 'fr' ? 'Date & Heure' : lang === 'es' ? 'Fecha y hora' : 'Date & Time'}
                         </label>
-                        <div className="flex flex-col md:flex-row border border-stone-300 rounded-xl bg-white overflow-hidden divide-y md:divide-y-0 md:divide-x divide-stone-200">
+                        <div className={`flex flex-col md:flex-row border rounded-xl bg-white overflow-hidden divide-y md:divide-y-0 md:divide-x divide-stone-200 transition-all duration-300 ${
+                          step1InvalidField === 'date' || step1InvalidField === 'time'
+                            ? 'border-red-500 ring-2 ring-red-500/20 shadow-sm'
+                            : 'border-stone-300'
+                        }`}>
                           {/* Date Selector */}
-                          <div className="relative flex items-center md:flex-1">
-                            <Calendar size={18} className="absolute left-4 text-stone-800 pointer-events-none" />
+                          <div className={`relative flex items-center md:flex-1 transition-colors ${step1InvalidField === 'date' ? 'bg-red-50/30' : ''}`}>
+                            <Calendar size={18} className={`absolute left-4 pointer-events-none transition-colors ${step1InvalidField === 'date' ? 'text-red-500' : 'text-stone-800'}`} />
                             <input
+                              ref={dateInputRef}
                               type="date"
                               placeholder={lang === 'fr' ? 'Choisir une date' : lang === 'es' ? 'Seleccionar fecha' : 'Select a date'}
                               value={bookingData.date}
                               min={new Date().toISOString().split('T')[0]}
                               onChange={(e) => {
                                 setBookingData(prev => ({ ...prev, date: e.target.value }));
-                                if (bookingError) setBookingError(null); if (step1Error) setStep1Error(null);
+                                if (bookingError) setBookingError(null);
+                                if (step1Error) setStep1Error(null);
+                                if (step1InvalidField === 'date') setStep1InvalidField(null);
+                              }}
+                              onFocus={() => {
+                                if (step1InvalidField === 'date') setStep1InvalidField(null);
                               }}
                               required
                               className={`w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-4 font-medium placeholder:text-stone-700/90 focus:ring-0 outline-none cursor-pointer text-[16px] appearance-none ${bookingData.date ? 'text-stone-950' : 'text-stone-700/90'}`}
                             />
                           </div>
                           {/* Time Selector */}
-                          <div className="relative flex items-center md:flex-1">
-                            <Clock size={18} className="absolute left-4 text-stone-800 pointer-events-none" />
+                          <div className={`relative flex items-center md:flex-1 transition-colors ${step1InvalidField === 'time' ? 'bg-red-50/30' : ''}`}>
+                            <Clock size={18} className={`absolute left-4 pointer-events-none transition-colors ${step1InvalidField === 'time' ? 'text-red-500' : 'text-stone-800'}`} />
                             <select 
+                              ref={timeSelectRef}
                               value={bookingData.time}
                               onChange={(e) => {
                                 setBookingData(prev => ({ ...prev, time: e.target.value }));
-                                if (bookingError) setBookingError(null); if (step1Error) setStep1Error(null);
+                                if (bookingError) setBookingError(null);
+                                if (step1Error) setStep1Error(null);
+                                if (step1InvalidField === 'time') setStep1InvalidField(null);
+                              }}
+                              onFocus={() => {
+                                if (step1InvalidField === 'time') setStep1InvalidField(null);
                               }}
                               aria-label={lang === 'fr' ? 'Sélectionner l\'heure de prise en charge' : lang === 'es' ? 'Seleccionar hora de recogida' : 'Select pickup time'}
                               className={`w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-10 font-medium focus:ring-0 outline-none appearance-none cursor-pointer text-[16px] ${bookingData.time ? 'text-stone-950' : 'text-stone-700/90'}`}
@@ -3296,31 +3319,47 @@ export default function App() {
                             <label className="text-xs font-bold text-stone-900 uppercase tracking-wider ml-1">
                               {lang === 'fr' ? 'Date & Heure de retour' : lang === 'es' ? 'Fecha y hora de vuelta' : 'Return Date & Time'}
                             </label>
-                            <div className="flex flex-col md:flex-row border border-stone-300 rounded-xl bg-white overflow-hidden divide-y md:divide-y-0 md:divide-x divide-stone-200">
+                            <div className={`flex flex-col md:flex-row border rounded-xl bg-white overflow-hidden divide-y md:divide-y-0 md:divide-x divide-stone-200 transition-all duration-300 ${
+                              step1InvalidField === 'returnDate' || step1InvalidField === 'returnTime'
+                                ? 'border-red-500 ring-2 ring-red-500/20 shadow-sm'
+                                : 'border-stone-300'
+                            }`}>
                               {/* Return Date Selector */}
-                              <div className="relative flex items-center md:flex-1">
-                                <Calendar size={18} className="absolute left-4 text-stone-800 pointer-events-none" />
+                              <div className={`relative flex items-center md:flex-1 transition-colors ${step1InvalidField === 'returnDate' ? 'bg-red-50/30' : ''}`}>
+                                <Calendar size={18} className={`absolute left-4 pointer-events-none transition-colors ${step1InvalidField === 'returnDate' ? 'text-red-500' : 'text-stone-800'}`} />
                                 <input
+                                  ref={returnDateInputRef}
                                   type="date"
                                   placeholder={lang === 'fr' ? 'Choisir une date de retour' : lang === 'es' ? 'Seleccionar fecha de vuelta' : 'Select a return date'}
                                   value={bookingData.returnDate}
                                   min={bookingData.date || new Date().toISOString().split('T')[0]}
                                   onChange={(e) => {
                                     setBookingData(prev => ({ ...prev, returnDate: e.target.value }));
-                                    if (bookingError) setBookingError(null); if (step1Error) setStep1Error(null);
+                                    if (bookingError) setBookingError(null);
+                                    if (step1Error) setStep1Error(null);
+                                    if (step1InvalidField === 'returnDate') setStep1InvalidField(null);
+                                  }}
+                                  onFocus={() => {
+                                    if (step1InvalidField === 'returnDate') setStep1InvalidField(null);
                                   }}
                                   required={bookingData.isReturnTrip}
                                   className={`w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-4 font-medium placeholder:text-stone-700/90 focus:ring-0 outline-none cursor-pointer text-[16px] appearance-none ${bookingData.returnDate ? 'text-stone-950' : 'text-stone-700/90'}`}
                                 />
                               </div>
                               {/* Return Time Selector */}
-                              <div className="relative flex items-center md:flex-1">
-                                <Clock size={18} className="absolute left-4 text-stone-800 pointer-events-none" />
+                              <div className={`relative flex items-center md:flex-1 transition-colors ${step1InvalidField === 'returnTime' ? 'bg-red-50/30' : ''}`}>
+                                <Clock size={18} className={`absolute left-4 pointer-events-none transition-colors ${step1InvalidField === 'returnTime' ? 'text-red-500' : 'text-stone-800'}`} />
                                 <select 
+                                  ref={returnTimeSelectRef}
                                   value={bookingData.returnTime}
                                   onChange={(e) => {
                                     setBookingData(prev => ({ ...prev, returnTime: e.target.value }));
-                                    if (bookingError) setBookingError(null); if (step1Error) setStep1Error(null);
+                                    if (bookingError) setBookingError(null);
+                                    if (step1Error) setStep1Error(null);
+                                    if (step1InvalidField === 'returnTime') setStep1InvalidField(null);
+                                  }}
+                                  onFocus={() => {
+                                    if (step1InvalidField === 'returnTime') setStep1InvalidField(null);
                                   }}
                                   aria-label={lang === 'fr' ? 'Sélectionner l\'heure de retour' : lang === 'es' ? 'Seleccionar hora de vuelta' : 'Select a return time'}
                                   className={`w-full bg-transparent border-none py-4 md:py-5 pl-12 pr-10 font-medium focus:ring-0 outline-none appearance-none cursor-pointer text-[16px] ${bookingData.returnTime ? 'text-stone-950' : 'text-stone-700/90'}`}

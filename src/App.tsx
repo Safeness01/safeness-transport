@@ -5,7 +5,6 @@
 
 import { useEffect, useState, useRef, useMemo, useCallback, Fragment } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Stripe, loadStripe } from '@stripe/stripe-js';
 import { setOptions, importLibrary } from '@googlemaps/js-api-loader';
 import { 
   MapPin, Navigation, Calendar, Clock, Users, User, Briefcase, Building2,
@@ -16,22 +15,13 @@ import {
   AlertCircle
 } from 'lucide-react';
 
-// Initialize Stripe with the public key from environment
-const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '';
-
-if (!STRIPE_PUBLIC_KEY) {
-  console.error("Stripe Public Key is missing! Check your .env or Vercel environment variables.");
-} else {
-  console.log("Stripe Public Key detected on Client: YES");
-}
-
-const stripePromise = loadStripe(STRIPE_PUBLIC_KEY);
-
 const GOOGLE_MAPS_API_KEY =
   (import.meta as any).env?.VITE_GOOGLE_MAPS_API_KEY ||
   process.env.VITE_GOOGLE_MAPS_API_KEY ||
   process.env.GOOGLE_MAPS_PLATFORM_KEY ||
   '';
+
+let googleMapsPromise: Promise<boolean> | null = null;
 
 const mapDarkStyles: google.maps.MapTypeStyle[] = [
   { elementType: "geometry", stylers: [{ color: "#212121" }] },
@@ -984,7 +974,7 @@ export default function App() {
       a6: 'Oui, vous pouvez modifier ou annuler votre réservation. Nous vous recommandons de nous contacter au moins 24 heures à l\'avance. Les conditions spécifiques d\'annulation vous seront précisées lors de la confirmation.',
       footer_desc: "L'élite du transport : prestige mondial, excellence sans compromis",
       legal: 'Mentions légales',
-      privacy: 'Mentions légales',
+      privacy: 'Politique de confidentialité',
       whatsapp_tooltip: 'Book on WhatsApp',
       lang_fr: 'Français',
       lang_en: 'Anglais',
@@ -1587,11 +1577,14 @@ export default function App() {
     return () => clearInterval(timer);
   }, [nextReview, isReviewsPaused, isReviewsVisible]);
 
-  // Load Google Maps API Script
-  useEffect(() => {
+  // Lazy Load Google Maps API Script
+  const loadGoogleMaps = useCallback(async (): Promise<boolean> => {
+    if (isGoogleLoaded && window.google?.maps?.places) return true;
+    if (googleMapsPromise) return googleMapsPromise;
+
     if (!GOOGLE_MAPS_API_KEY) {
       console.warn('VITE_GOOGLE_MAPS_API_KEY is missing');
-      return;
+      return false;
     }
 
     setOptions({
@@ -1600,7 +1593,7 @@ export default function App() {
       libraries: ['places', 'geometry', 'routes']
     });
 
-    Promise.all([
+    googleMapsPromise = Promise.all([
       importLibrary('maps'),
       importLibrary('places'),
       importLibrary('routes'),
@@ -1614,12 +1607,47 @@ export default function App() {
       if (window.google?.maps) {
         directionsServiceRef.current = new window.google.maps.DirectionsService();
       }
+      return true;
     }).catch(err => {
       console.error('Error loading Google Maps API:', err);
+      googleMapsPromise = null;
+      return false;
     });
-  }, []);
 
-  const calculateRoute = useCallback((p1: [number, number], p2: [number, number]) => {
+    return googleMapsPromise;
+  }, [isGoogleLoaded]);
+
+  // Observer to preload Google Maps as the user approaches the booking section
+  useEffect(() => {
+    const bookingEl = document.getElementById('booking');
+    if (!bookingEl) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      loadGoogleMaps();
+      return;
+    }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        loadGoogleMaps();
+        observer.disconnect();
+      }
+    }, { rootMargin: '600px 0px' });
+    observer.observe(bookingEl);
+    return () => observer.disconnect();
+  }, [loadGoogleMaps]);
+
+  // Background idle fallback after initial page interaction
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadGoogleMaps();
+    }, 4500);
+    return () => clearTimeout(timer);
+  }, [loadGoogleMaps]);
+
+  const calculateRoute = useCallback(async (p1: [number, number], p2: [number, number]) => {
+    if (!directionsServiceRef.current) {
+      await loadGoogleMaps();
+    }
+
     if (directionsServiceRef.current && directionsRendererRef.current && googleMapRef.current) {
       directionsServiceRef.current.route(
         {
@@ -1628,7 +1656,7 @@ export default function App() {
           travelMode: window.google.maps.TravelMode.DRIVING
         },
         (result, status) => {
-          if (status === window.google.maps.DirectionsStatus.OK && result) {
+          if (status === window.google?.maps?.DirectionsStatus?.OK && result) {
             directionsRendererRef.current?.setDirections(result);
             const route = result.routes[0];
             if (route?.legs?.[0]) {
@@ -1664,7 +1692,7 @@ export default function App() {
           setBookingData(prev => ({ ...prev, distance: 15, duration: 30 }));
         });
     }
-  }, []);
+  }, [loadGoogleMaps]);
 
   // Initialize and update Google Map container
   useEffect(() => {
@@ -1712,6 +1740,10 @@ export default function App() {
       return;
     }
 
+    if (!autocompleteServiceRef.current) {
+      await loadGoogleMaps();
+    }
+
     if (autocompleteServiceRef.current) {
       autocompleteServiceRef.current.getPlacePredictions(
         {
@@ -1719,7 +1751,7 @@ export default function App() {
           componentRestrictions: { country: ['fr', 'be', 'ch', 'lu', 'it', 'es', 'de', 'nl', 'gb'] }
         },
         (predictions, status) => {
-          if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
+          if (status === window.google?.maps?.places?.PlacesServiceStatus?.OK && predictions) {
             const results = predictions.map(p => ({
               description: p.description,
               placeId: p.place_id,
@@ -1757,7 +1789,7 @@ export default function App() {
     }
   };
 
-  const selectAddress = (item: any, type: 'pickup' | 'dropoff' | 'returnPickup' | 'returnDropoff') => {
+  const selectAddress = async (item: any, type: 'pickup' | 'dropoff' | 'returnPickup' | 'returnDropoff') => {
     const applyCoordsAndAddress = (coords: [number, number], address: string) => {
       setStep1Error(null);
       setBookingData(prev => ({
@@ -1798,18 +1830,26 @@ export default function App() {
       );
     };
 
-    if (item.placeId && geocoderRef.current) {
-      geocoderRef.current.geocode({ placeId: item.placeId }, (results, status) => {
-        if (status === window.google.maps.GeocoderStatus.OK && results?.[0]) {
-          const location = results[0].geometry.location;
-          const lat = location.lat();
-          const lng = location.lng();
-          applyCoordsAndAddress([lat, lng], results[0].formatted_address || item.description);
-        } else {
-          handleGeocodeFailure(item.description);
-        }
-      });
-    } else if (item.lat != null && item.lon != null) {
+    if (item.placeId) {
+      if (!geocoderRef.current) {
+        await loadGoogleMaps();
+      }
+      if (geocoderRef.current) {
+        geocoderRef.current.geocode({ placeId: item.placeId }, (results, status) => {
+          if (status === window.google?.maps?.GeocoderStatus?.OK && results?.[0]) {
+            const location = results[0].geometry.location;
+            const lat = location.lat();
+            const lng = location.lng();
+            applyCoordsAndAddress([lat, lng], results[0].formatted_address || item.description);
+          } else {
+            handleGeocodeFailure(item.description);
+          }
+        });
+        return;
+      }
+    }
+    
+    if (item.lat != null && item.lon != null) {
       const lat = typeof item.lat === 'string' ? parseFloat(item.lat) : item.lat;
       const lon = typeof item.lon === 'string' ? parseFloat(item.lon) : item.lon;
       if (!isNaN(lat) && !isNaN(lon)) {
@@ -2185,7 +2225,13 @@ export default function App() {
           >
             {t('hero_book')}
           </a>
-          <a href="#booking" className="mt-8 flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors uppercase font-normal tracking-wider group">
+          <a 
+            href="#booking" 
+            onClick={() => loadGoogleMaps()}
+            onMouseEnter={() => loadGoogleMaps()}
+            onTouchStart={() => loadGoogleMaps()}
+            className="mt-8 flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors uppercase font-normal tracking-wider group"
+          >
             {t('hero_estimate')}
             <ArrowRight size={18} strokeWidth={1.5} className="group-hover:translate-x-1 transition-transform" />
           </a>
@@ -3242,6 +3288,8 @@ export default function App() {
                                 ref={pickupInputRef}
                                 type="text" 
                                 value={bookingData.pickup}
+                                onFocus={() => loadGoogleMaps()}
+                                onMouseEnter={() => loadGoogleMaps()}
                                 onChange={(e) => {
                                   setBookingData(prev => ({ ...prev, pickup: e.target.value, pickupCoords: null }));
                                   searchAddress(e.target.value, 'pickup');
@@ -3300,6 +3348,8 @@ export default function App() {
                                     ref={dropoffInputRef}
                                     type="text" 
                                     value={bookingData.dropoff}
+                                    onFocus={() => loadGoogleMaps()}
+                                    onMouseEnter={() => loadGoogleMaps()}
                                     onChange={(e) => {
                                       setBookingData(prev => ({ ...prev, dropoff: e.target.value, dropoffCoords: null }));
                                       searchAddress(e.target.value, 'dropoff');

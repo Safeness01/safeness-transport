@@ -2195,7 +2195,7 @@ export default function App() {
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.05 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
           className="bg-white/5 backdrop-blur-md border border-white/10 rounded-full px-5 py-2.5 sm:py-2 text-[13px] font-normal tracking-wide text-white/80 mb-10 max-w-[calc(100vw-48px)] sm:max-w-2xl shadow-xl uppercase text-center flex items-center justify-center"
         >
           {t('hero_badge')}
@@ -2203,7 +2203,7 @@ export default function App() {
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
           className="flex flex-col items-center mb-12 notranslate"
           translate="no"
         >
@@ -2216,7 +2216,7 @@ export default function App() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
           className="flex flex-col items-center"
         >
           <a 

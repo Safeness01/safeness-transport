@@ -2108,15 +2108,18 @@ export default function App() {
 
       {/* BACKGROUND LAYER */}
       <div className="fixed inset-0 z-0">
-        <img 
-          src="/images/hero-bg.jpg" 
-          alt="Premium Service Background" 
-          className="w-full h-full object-cover object-center"
-          loading="eager"
-          decoding="async"
-          // @ts-ignore
-          fetchPriority="high"
-        />
+        <picture>
+          <source media="(max-width: 768px)" srcSet="https://res.cloudinary.com/ec9kwdkg/image/upload/f_auto,q_auto,w_640,c_limit/v1787146717/hero-bg.jpg" />
+          <img 
+            src="https://res.cloudinary.com/ec9kwdkg/image/upload/f_auto,q_auto,w_1920,c_limit/v1787146717/hero-bg.jpg" 
+            alt="Premium Service Background" 
+            className="w-full h-full object-cover object-center"
+            loading="eager"
+            decoding="async"
+            // @ts-ignore
+            fetchPriority="high"
+          />
+        </picture>
         <div className="absolute inset-0 bg-stone-950/70 backdrop-blur-[2px]"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-transparent to-stone-950/50"></div>
       </div>

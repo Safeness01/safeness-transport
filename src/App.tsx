@@ -628,35 +628,39 @@ export default function App() {
     }
 
     // 5. Vérification que la date et l'heure ne sont pas dans le passé
+    const todayStr = new Date().toLocaleDateString('en-CA');
+    if (date < todayStr) {
+      if (dateInputRef.current) {
+        dateInputRef.current.setCustomValidity(
+          lang === 'fr' 
+            ? "La date de départ ne peut pas être dans le passé." 
+            : lang === 'es' 
+            ? "La fecha de salida no puede estar en el pasado." 
+            : "Departure date cannot be in the past."
+        );
+        dateInputRef.current.focus();
+        if (!dateInputRef.current.reportValidity()) return;
+      }
+      return;
+    }
+
     try {
       const startTime = time.includes("-") ? time.split("-")[0].trim() : time.trim();
       const selectedDateTime = new Date(date + "T" + startTime);
       const now = new Date();
-      const todayStr = new Date().toLocaleDateString('en-CA');
       if (!isNaN(selectedDateTime.getTime()) && selectedDateTime.getTime() < now.getTime() - 5 * 60 * 1000) {
-        if (date < todayStr) {
-          if (dateInputRef.current) {
-            dateInputRef.current.setCustomValidity(
-              lang === 'fr' 
-                ? "La date de départ ne peut pas être dans le passé." 
-                : lang === 'es' 
-                ? "La fecha de salida no puede estar en el pasado." 
-                : "Departure date cannot be in the past."
-            );
-            if (!dateInputRef.current.reportValidity()) return;
-          }
-        } else {
-          if (timeSelectRef.current) {
-            timeSelectRef.current.setCustomValidity(
-              lang === 'fr' 
-                ? "Ce créneau horaire est déjà passé. Veuillez choisir une heure ultérieure." 
-                : lang === 'es' 
-                ? "Esta hora ya ha pasado. Por favor, seleccione una hora posterior." 
-                : "This time slot is in the past. Please select a later time."
-            );
-            if (!timeSelectRef.current.reportValidity()) return;
-          }
+        if (timeSelectRef.current) {
+          timeSelectRef.current.setCustomValidity(
+            lang === 'fr' 
+              ? "Ce créneau horaire est déjà passé. Veuillez choisir une heure ultérieure." 
+              : lang === 'es' 
+              ? "Esta hora ya ha pasado. Por favor, seleccione una hora posterior." 
+              : "This time slot is in the past. Please select a later time."
+          );
+          timeSelectRef.current.focus();
+          if (!timeSelectRef.current.reportValidity()) return;
         }
+        return;
       }
     } catch {
       // ignore
@@ -672,35 +676,40 @@ export default function App() {
         returnTimeSelectRef.current.setCustomValidity('');
         if (!returnTimeSelectRef.current.reportValidity()) return;
       }
+
+      if (returnDate < date) {
+        if (returnDateInputRef.current) {
+          returnDateInputRef.current.setCustomValidity(
+            lang === 'fr' 
+              ? "La date de retour ne peut pas être antérieure à la date de départ." 
+              : lang === 'es' 
+              ? "La fecha de regreso no puede ser anterior a la fecha de salida." 
+              : "Return date cannot be before departure date."
+          );
+          returnDateInputRef.current.focus();
+          if (!returnDateInputRef.current.reportValidity()) return;
+        }
+        return;
+      }
+
       try {
         const startTime = time.includes("-") ? time.split("-")[0].trim() : time.trim();
         const selectedDateTime = new Date(date + "T" + startTime);
         const returnStartTime = returnTime.includes("-") ? returnTime.split("-")[0].trim() : returnTime.trim();
         const returnDateTime = new Date(returnDate + "T" + returnStartTime);
         if (!isNaN(returnDateTime.getTime()) && !isNaN(selectedDateTime.getTime()) && returnDateTime.getTime() <= selectedDateTime.getTime()) {
-          if (returnDate < date) {
-            if (returnDateInputRef.current) {
-              returnDateInputRef.current.setCustomValidity(
-                lang === 'fr' 
-                  ? "La date de retour ne peut pas être antérieure à la date de départ." 
-                  : lang === 'es' 
-                  ? "La fecha de regreso no puede ser anterior a la fecha de salida." 
-                  : "Return date cannot be before departure date."
-              );
-              if (!returnDateInputRef.current.reportValidity()) return;
-            }
-          } else {
-            if (returnTimeSelectRef.current) {
-              returnTimeSelectRef.current.setCustomValidity(
-                lang === 'fr' 
-                  ? "L'heure de retour doit être postérieure à l'heure de départ." 
-                  : lang === 'es' 
-                  ? "La hora de regreso debe ser posterior a la hora de salida." 
-                  : "Return time must be after departure time."
-              );
-              if (!returnTimeSelectRef.current.reportValidity()) return;
-            }
+          if (returnTimeSelectRef.current) {
+            returnTimeSelectRef.current.setCustomValidity(
+              lang === 'fr' 
+                ? "L'heure de retour doit être postérieure à l'heure de départ." 
+                : lang === 'es' 
+                ? "La hora de regreso debe ser posterior a la hora de salida." 
+                : "Return time must be after departure time."
+            );
+            returnTimeSelectRef.current.focus();
+            if (!returnTimeSelectRef.current.reportValidity()) return;
           }
+          return;
         }
       } catch {
         // ignore
@@ -3363,19 +3372,11 @@ export default function App() {
                               onChange={(e) => {
                                 const val = e.target.value;
                                 e.target.setCustomValidity('');
-                                if (val && val < todayStr) {
-                                  setBookingData(prev => ({ 
-                                    ...prev, 
-                                    date: todayStr,
-                                    returnDate: prev.returnDate && prev.returnDate < todayStr ? todayStr : prev.returnDate
-                                  }));
-                                } else {
-                                  setBookingData(prev => ({ 
-                                    ...prev, 
-                                    date: val,
-                                    returnDate: prev.returnDate && val && prev.returnDate < val ? val : prev.returnDate
-                                  }));
-                                }
+                                setBookingData(prev => ({ 
+                                  ...prev, 
+                                  date: val,
+                                  returnDate: prev.returnDate && val && prev.returnDate < val ? val : prev.returnDate
+                                }));
                                 if (bookingError) setBookingError(null);
                                 if (step1Error) setStep1Error(null);
                               }}
@@ -3432,9 +3433,9 @@ export default function App() {
                               <RotateCcw size={18} />
                             </div>
                             <div className="text-left">
-                              <div className="text-sm font-bold text-stone-900 flex items-center gap-2">
+                              <div className="text-sm font-bold text-stone-900 flex items-center gap-1.5">
                                 <span>{t('returnTrip')}</span>
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-300 shadow-2xs">
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold bg-emerald-50/50 text-emerald-700/80 border border-emerald-200/50">
                                   -10%
                                 </span>
                               </div>
@@ -3463,13 +3464,8 @@ export default function App() {
                                   min={bookingData.date || todayStr}
                                   onChange={(e) => {
                                     const val = e.target.value;
-                                    const minAllowed = bookingData.date || todayStr;
                                     e.target.setCustomValidity('');
-                                    if (val && val < minAllowed) {
-                                      setBookingData(prev => ({ ...prev, returnDate: minAllowed }));
-                                    } else {
-                                      setBookingData(prev => ({ ...prev, returnDate: val }));
-                                    }
+                                    setBookingData(prev => ({ ...prev, returnDate: val }));
                                     if (bookingError) setBookingError(null);
                                     if (step1Error) setStep1Error(null);
                                   }}

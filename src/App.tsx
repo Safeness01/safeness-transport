@@ -2180,7 +2180,7 @@ export default function App() {
           className="flex flex-col items-center"
         >
           <a 
-            href="#booking"
+            href="tel:+33782274920"
             className="bg-white text-stone-950 px-10 py-4 rounded-full font-normal text-base hover:bg-stone-200 transition-all duration-300 shadow-[0_0_30px_rgba(255,255,255,0.1)]"
           >
             {t('hero_book')}
@@ -2662,10 +2662,10 @@ export default function App() {
             {/* Transfers Grid - Static Tall Cards */}
             <div id="transfers-grid-container" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
-                { key: 'route_cdg', price: '120€', time: '45 min', icon: <Navigation size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/603b4374-0730-4377-a001-ab58e60cb33d_l6ue2k' },
-                { key: 'route_orly', price: '120€', time: '35 min', icon: <MapPin size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/39169e3d-ae4f-46b7-a9a0-9aee8857f11a_wzsemp' },
+                { key: 'route_cdg', price: '100€', time: '45 min', icon: <Navigation size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/603b4374-0730-4377-a001-ab58e60cb33d_l6ue2k' },
+                { key: 'route_orly', price: '80€', time: '35 min', icon: <MapPin size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/39169e3d-ae4f-46b7-a9a0-9aee8857f11a_wzsemp' },
                 { key: 'route_disney', price: '120€', time: '50 min', icon: <Sparkles size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/b04fc1f4-3d8d-4e87-89a5-7d9dd8d174ae_jw5xtm' },
-                { key: 'route_versailles', price: '120€', time: '40 min', icon: <Building2 size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/39169e3d-ae4f-46b7-a9a0-9aee8857f11a_wzsemp' },
+                { key: 'route_versailles', price: '90€', time: '40 min', icon: <Building2 size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/39169e3d-ae4f-46b7-a9a0-9aee8857f11a_wzsemp' },
                 { key: 'route_giverny', price: '120€', time: '75 min', icon: <Palette size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/39169e3d-ae4f-46b7-a9a0-9aee8857f11a_wzsemp', lgOnly: true },
                 { key: 'route_beauvais', price: '120€', time: '80 min', icon: <Plane size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/39169e3d-ae4f-46b7-a9a0-9aee8857f11a_wzsemp', lgOnly: true },
               ].map((item: any, i) => {
@@ -2735,17 +2735,16 @@ export default function App() {
                                 <span className="block text-[8px] uppercase tracking-widest text-white/30 mb-1">{t('total')}</span>
                                 <span className="text-3xl font-bold text-white tracking-tighter">{item.price}</span>
                               </div>
-                              <button 
+                              <a 
+                                href="tel:+33782274920"
                                 onClick={(e) => {
                                   e.stopPropagation(); // Avoid triggering onTouchStart/onClick on parent
-                                  setStep(1);
-                                  window.scrollTo({ top: 0, behavior: 'smooth' });
                                 }}
-                                aria-label={`${t('book_now')} - ${t(item.key)} (${item.price})`}
-                                className="w-12 h-12 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-stone-900 transition-all duration-700 ease-out shadow-lg active:scale-95"
+                                aria-label={`Appeler le 07 82 27 49 20 - ${t(item.key)} (${item.price})`}
+                                className="w-12 h-12 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-stone-900 transition-all duration-700 ease-out shadow-lg active:scale-95 cursor-pointer"
                               >
                                 <ArrowRight size={20} />
-                              </button>
+                              </a>
                             </div>
                           </div>
                         </div>

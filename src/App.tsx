@@ -2109,9 +2109,9 @@ export default function App() {
       {/* BACKGROUND LAYER */}
       <div className="fixed inset-0 z-0">
         <picture>
-          <source media="(max-width: 768px)" srcSet="https://res.cloudinary.com/ec9kwdkg/image/upload/f_auto,q_auto,w_640,c_limit/v1787146717/hero-bg.jpg" />
+          <source media="(max-width: 768px)" srcSet="https://res.cloudinary.com/ec9kwdkg/image/upload/f_webp,q_78,w_800,c_limit/v1787146717/hero-bg.jpg" />
           <img 
-            src="https://res.cloudinary.com/ec9kwdkg/image/upload/f_auto,q_auto,w_1920,c_limit/v1787146717/hero-bg.jpg" 
+            src="https://res.cloudinary.com/ec9kwdkg/image/upload/f_webp,q_78,w_1920,c_limit/v1787146717/hero-bg.jpg" 
             alt="Premium Service Background" 
             className="w-full h-full object-cover object-center"
             loading="eager"

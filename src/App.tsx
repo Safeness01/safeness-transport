@@ -725,10 +725,10 @@ export default function App() {
 
   const vehicles = {
     eco: { name: 'Économique', model: 'Toyota Corolla / Similaire', startFee: 30, kmPrice: 1.80, hourlyPrice: 40, pax: 3, bag: 3, img: '/images/economy.webp' },
-    tesla: { name: 'Tesla / BYD', model: 'Tesla Model 3 / Y, BYD', startFee: 40, kmPrice: 1.90, hourlyPrice: 50, pax: 3, bag: 3, img: 'https://i.ibb.co/5gGysbdL/tesla.png' },
-    business: { name: 'Mercedes Classe E', model: 'Mercedes-Benz Classe E', startFee: 50, kmPrice: 2.10, hourlyPrice: 60, pax: 3, bag: 3, img: 'https://i.ibb.co/DPTqpP5k/classe-e.png' },
-    van_v: { name: 'Mercedes Classe V', model: 'Mercedes-Benz Classe V', startFee: 55, kmPrice: 2.50, hourlyPrice: 90, pax: 7, bag: 7, img: 'https://i.ibb.co/cK654DjV/classe-v.png' },
-    first: { name: 'Mercedes Classe S', model: 'Mercedes-Benz Classe S', startFee: 70, kmPrice: 3.00, hourlyPrice: 120, pax: 3, bag: 3, img: 'https://i.ibb.co/B7Vvx9F/classe-s.png' }
+    tesla: { name: 'Tesla / BYD', model: 'Tesla Model 3 / Y, BYD', startFee: 40, kmPrice: 1.90, hourlyPrice: 50, pax: 3, bag: 3, img: 'https://res.cloudinary.com/ec9kwdkg/image/upload/v1787238574/tesla.png' },
+    business: { name: 'Mercedes Classe E', model: 'Mercedes-Benz Classe E', startFee: 50, kmPrice: 2.10, hourlyPrice: 60, pax: 3, bag: 3, img: 'https://res.cloudinary.com/ec9kwdkg/image/upload/v1787238572/classe-e.png' },
+    van_v: { name: 'Mercedes Classe V', model: 'Mercedes-Benz Classe V', startFee: 55, kmPrice: 2.50, hourlyPrice: 90, pax: 7, bag: 7, img: 'https://res.cloudinary.com/ec9kwdkg/image/upload/v1787238574/classe-v.png' },
+    first: { name: 'Mercedes Classe S', model: 'Mercedes-Benz Classe S', startFee: 70, kmPrice: 3.00, hourlyPrice: 120, pax: 3, bag: 3, img: 'https://res.cloudinary.com/ec9kwdkg/image/upload/v1787238573/classe-s.png' }
   };
 
   // Automatically cap passengers and luggage when vehicle changes
@@ -2986,10 +2986,10 @@ export default function App() {
             </motion.div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 text-base font-light text-stone-400 tracking-wide">
               {[
-                { type: 'Confort', model: 'Tesla', img: 'https://i.ibb.co/5gGysbdL/tesla.png', pax: `3 ${t('passengers')}`, bag: `3 ${t('luggage')}`, mobileOnly: true },
-                { type: 'Business', model: 'Classe E', img: 'https://i.ibb.co/DPTqpP5k/classe-e.png', pax: `3 ${t('passengers')}`, bag: `3 ${t('luggage')}` },
-                { type: 'Premium', model: 'Classe V', img: 'https://i.ibb.co/cK654DjV/classe-v.png', pax: `7 ${t('passengers')}`, bag: `7 ${t('luggage')}`, isPremium: true },
-                { type: 'Luxe', model: 'Classe S', img: 'https://i.ibb.co/B7Vvx9F/classe-s.png', pax: `3 ${t('passengers')}`, bag: `3 ${t('luggage')}` }
+                { type: 'Confort', model: 'Tesla', img: 'https://res.cloudinary.com/ec9kwdkg/image/upload/v1787238574/tesla.png', pax: `3 ${t('passengers')}`, bag: `3 ${t('luggage')}`, mobileOnly: true },
+                { type: 'Business', model: 'Classe E', img: 'https://res.cloudinary.com/ec9kwdkg/image/upload/v1787238572/classe-e.png', pax: `3 ${t('passengers')}`, bag: `3 ${t('luggage')}` },
+                { type: 'Premium', model: 'Classe V', img: 'https://res.cloudinary.com/ec9kwdkg/image/upload/v1787238574/classe-v.png', pax: `7 ${t('passengers')}`, bag: `7 ${t('luggage')}`, isPremium: true },
+                { type: 'Luxe', model: 'Classe S', img: 'https://res.cloudinary.com/ec9kwdkg/image/upload/v1787238573/classe-s.png', pax: `3 ${t('passengers')}`, bag: `3 ${t('luggage')}` }
               ].map((car, i) => (
                 <motion.div 
                   key={i} 

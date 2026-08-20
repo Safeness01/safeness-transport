@@ -2600,7 +2600,7 @@ export default function App() {
                 },
                 { 
                   icon: <MapPin size={22} />, 
-                  img: "https://res.cloudinary.com/ec9kwdkg/image/upload/v1787240438/travel-transfer.jpg",
+                  img: "https://res.cloudinary.com/ec9kwdkg/image/upload/v1787244859/travel-transfer.jpg",
                   features: [t('service3_feat1'), t('service3_feat2'), t('service3_feat3')]
                 },
                 { 

@@ -2600,12 +2600,12 @@ export default function App() {
                 },
                 { 
                   icon: <MapPin size={22} />, 
-                  img: "https://res.cloudinary.com/ec9kwdkg/image/upload/v1787236907/travel-transfer.jpg",
+                  img: "https://res.cloudinary.com/ec9kwdkg/image/upload/v1787240438/travel-transfer.jpg",
                   features: [t('service3_feat1'), t('service3_feat2'), t('service3_feat3')]
                 },
                 { 
                   icon: <Briefcase size={22} />, 
-                  img: "https://res.cloudinary.com/ec9kwdkg/image/upload/v1787236832/chauffeur-hailing.jpg",
+                  img: "https://res.cloudinary.com/ec9kwdkg/image/upload/v1787240576/chauffeur-hailing.jpg",
                   features: [t('service4_feat1'), t('service4_feat2'), t('service4_feat3')]
                 },
                 { 
@@ -2739,12 +2739,12 @@ export default function App() {
             {/* Transfers Grid - Static Tall Cards */}
             <div id="transfers-grid-container" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
-                { key: 'route_cdg', price: '100€', time: '45 min', icon: <Navigation size={20} />, image: 'https://res.cloudinary.com/ec9kwdkg/image/upload/w_1200/v1787150738/paris-cdg-airport.png' },
-                { key: 'route_orly', price: '80€', time: '35 min', icon: <MapPin size={20} />, image: 'https://res.cloudinary.com/ec9kwdkg/image/upload/w_1200/v1787150683/paris-orly-airport.png' },
-                { key: 'route_disney', price: '120€', time: '50 min', icon: <Sparkles size={20} />, image: 'https://res.cloudinary.com/ec9kwdkg/image/upload/w_1200/v1787150743/disneyland-paris.png' },
-                { key: 'route_versailles', price: '90€', time: '40 min', icon: <Building2 size={20} />, image: 'https://res.cloudinary.com/ec9kwdkg/image/upload/w_1200/v1787150749/versailles-paris.png' },
-                { key: 'route_giverny', price: '120€', time: '75 min', icon: <Palette size={20} />, image: 'https://res.cloudinary.com/ec9kwdkg/image/upload/w_1200/v1787150686/giverny-paris.png', lgOnly: true },
-                { key: 'route_beauvais', price: '120€', time: '80 min', icon: <Plane size={20} />, image: 'https://res.cloudinary.com/ec9kwdkg/image/upload/w_1200/v1787150687/paris-beauvais-airport.png', lgOnly: true },
+                { key: 'route_cdg', price: '100€', time: '45 min', icon: <Navigation size={20} />, image: 'https://res.cloudinary.com/ec9kwdkg/image/upload/v1787239248/paris-cdg-airport.png' },
+                { key: 'route_orly', price: '80€', time: '35 min', icon: <MapPin size={20} />, image: 'https://res.cloudinary.com/ec9kwdkg/image/upload/v1787239175/paris-orly-airport.png' },
+                { key: 'route_disney', price: '120€', time: '50 min', icon: <Sparkles size={20} />, image: 'https://res.cloudinary.com/ec9kwdkg/image/upload/v1787239254/disneyland-paris.png' },
+                { key: 'route_versailles', price: '90€', time: '40 min', icon: <Building2 size={20} />, image: 'https://res.cloudinary.com/ec9kwdkg/image/upload/v1787239253/versailles-paris.png' },
+                { key: 'route_giverny', price: '120€', time: '75 min', icon: <Palette size={20} />, image: 'https://res.cloudinary.com/ec9kwdkg/image/upload/v1787239177/giverny-paris.png', lgOnly: true },
+                { key: 'route_beauvais', price: '120€', time: '80 min', icon: <Plane size={20} />, image: 'https://res.cloudinary.com/ec9kwdkg/image/upload/v1787239180/paris-beauvais-airport.png', lgOnly: true },
               ].map((item: any, i) => {
                 return (
                   <motion.div 
@@ -2921,7 +2921,7 @@ export default function App() {
               <div className="flex flex-col gap-6 lg:gap-0 w-full lg:max-w-[95%] lg:ml-auto">
                 <div className="relative w-full aspect-[4/4.5] md:aspect-[4/3] lg:aspect-[4/3.3] rounded-3xl overflow-hidden border border-white/10 bg-stone-900/50 flex items-end justify-center p-5 xs:p-8">
                   <img 
-                    src="https://i.ibb.co/HL730gdy/Image.jpg" 
+                    src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1787240276/business-transfer.jpg" 
                     alt="Chauffeur Service background" 
                     className="absolute inset-0 w-full h-full object-cover opacity-100"
                     referrerPolicy="no-referrer"
@@ -3085,7 +3085,7 @@ export default function App() {
                     {/* Image 1: Portrait Interior */}
                     <div className="group relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] border border-white/10 aspect-[3/4] h-[384px] md:h-[420px] flex-shrink-0">
                       <img 
-                        src="https://images.unsplash.com/photo-1629019878688-f5d58a41b188?auto=format&fit=crop&w=600&q=75" 
+                        src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1787243168/mercedes-luxury-interior.jpg" 
                         alt={t('gallery_img1_alt')} 
                         loading="lazy"
                         className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-105 opacity-90 group-hover:opacity-100"
@@ -3097,7 +3097,7 @@ export default function App() {
                     {/* Image 2: Portrait Center Detail */}
                     <div className="group relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] border border-white/10 aspect-[3/4] h-[384px] md:h-[420px] flex-shrink-0">
                       <img 
-                        src="https://res.cloudinary.com/ec9kwdkg/image/upload/f_auto,q_auto:best,w_1000/v1786743731/Image_2_h6hmh6.jpg" 
+                        src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1786743731/mercedes-fleet.jpg" 
                         alt={t('gallery_img2_alt')} 
                         loading="lazy"
                         className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-105 opacity-90 group-hover:opacity-100"
@@ -3109,7 +3109,7 @@ export default function App() {
                     {/* Image 3: Portrait End Detail */}
                     <div className="group relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] border border-white/10 aspect-[3/4] h-[384px] md:h-[420px] flex-shrink-0">
                       <img 
-                        src="https://images.unsplash.com/photo-1720731035872-7aa3708996c1?auto=format&fit=crop&w=600&q=75" 
+                        src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1787243173/mercedes-v-class.jpg" 
                         alt={t('gallery_img3_alt')} 
                         loading="lazy"
                         className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-105 opacity-90 group-hover:opacity-100"

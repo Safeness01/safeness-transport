@@ -860,6 +860,7 @@ export default function App() {
       europe_hub_tag: 'Hub Principal',
       europe_hub_title: 'Paris Centre',
       europe_hub_desc: 'Le cœur de notre réseau. Chauffeurs d\'élite disponibles 24/7 pour vos besoins locaux et transferts internationaux.',
+      europe_cotedazur_tag: 'Riviera & Côte d\'Azur',
       europe_munich_tag: 'Pôle d\'affaires Bavarois',
       europe_milan_tag: 'Haut-lieu du design Italien',
       europe_berlin_tag: 'Centre technologique Européen',
@@ -1103,6 +1104,7 @@ export default function App() {
       europe_hub_tag: 'Main Hub',
       europe_hub_title: 'Central Paris',
       europe_hub_desc: 'The heart of our network. Elite chauffeurs available 24/7 for local needs and international transfers.',
+      europe_cotedazur_tag: 'French Riviera & Coast',
       europe_munich_tag: 'Bavarian Business Hub',
       europe_milan_tag: 'Italian Design Hub',
       europe_berlin_tag: 'European Tech Hub',
@@ -1346,6 +1348,7 @@ export default function App() {
       europe_hub_tag: 'Sede Principal',
       europe_hub_title: 'París Centro',
       europe_hub_desc: 'El corazón de nuestra red. Chóferes de élite disponibles 24/7 para necesidades locales y traslados internacionales.',
+      europe_cotedazur_tag: 'Costa Azul y Riviera Francesa',
       europe_munich_tag: 'Centro de negocios bávaro',
       europe_milan_tag: 'Centro del diseño italiano',
       europe_berlin_tag: 'Centro tecnológico europeo',
@@ -2354,9 +2357,9 @@ export default function App() {
               </div>
             </motion.div>
 
-            <div id="bento-grid-container" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 grid-rows-2 gap-4 h-auto lg:h-[550px]">
+            <div id="bento-grid-container" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 h-auto">
               
-              {/* PARIS: Main Hub - Large Bento Item */}
+              {/* PARIS: Main Hub */}
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1, transition: { duration: 0.8, delay: 0.1, ease: "easeOut" } }}
@@ -2365,7 +2368,7 @@ export default function App() {
                 whileTap={isTouchDevice ? undefined : "tap"}
                 onTouchStart={() => setActiveBentoCard('paris')}
                 onClick={() => setActiveBentoCard('paris')}
-                className="lg:col-span-2 lg:row-span-2 group relative border border-white/10 rounded-[2.4rem] overflow-hidden cursor-pointer"
+                className="group relative border border-white/10 rounded-[2rem] overflow-hidden h-72 lg:h-[290px] cursor-pointer"
               >
                 <motion.img 
                   animate={isTouchDevice ? (activeBentoCard === 'paris' ? "hover" : "initial") : undefined}
@@ -2381,17 +2384,45 @@ export default function App() {
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 md:from-stone-950/95 via-stone-950/20 to-transparent"></div>
-                <div className="absolute bottom-8 left-8 right-8 lg:bottom-12 lg:left-12 lg:right-12">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center bg-white/5 backdrop-blur-md">
-                      <MapPin size={22} className="text-white" strokeWidth={2} />
+                <div className="absolute bottom-8 left-8 right-8">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-6 h-6 rounded-full border border-white/20 flex items-center justify-center bg-white/5 backdrop-blur-md">
+                      <MapPin size={12} className="text-white" strokeWidth={2} />
                     </div>
-                    <span className="text-white/40 text-xs uppercase tracking-[0.2em] font-medium">{t('europe_hub_tag')}</span>
+                    <span className="text-white/60 text-[10px] uppercase tracking-[0.2em] font-medium">{t('europe_hub_tag')}</span>
                   </div>
-                  <h3 className="text-4xl font-semibold text-white uppercase tracking-tight mb-4">{t('europe_hub_title')}</h3>
-                  <p className="text-stone-300 text-sm font-light max-w-sm line-clamp-2 md:line-clamp-none">
-                    {t('europe_hub_desc')}
-                  </p>
+                  <h3 className="text-2xl font-semibold text-white uppercase tracking-tight">{t('europe_hub_title')}</h3>
+                </div>
+              </motion.div>
+
+              {/* CÔTE D'AZUR */}
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1, transition: { duration: 0.8, delay: 0.15, ease: "easeOut" } }}
+                viewport={{ once: true }}
+                whileHover={isTouchDevice ? undefined : "hover"}
+                whileTap={isTouchDevice ? undefined : "tap"}
+                onTouchStart={() => setActiveBentoCard('cotedazur')}
+                onClick={() => setActiveBentoCard('cotedazur')}
+                className="group relative border border-white/10 rounded-[2rem] overflow-hidden h-72 lg:h-[290px] cursor-pointer"
+              >
+                <motion.img 
+                  animate={isTouchDevice ? (activeBentoCard === 'cotedazur' ? "hover" : "initial") : undefined}
+                  variants={{
+                    hover: { scale: 1.12, transition: { duration: 3.2, ease: [0.16, 1, 0.3, 1] } },
+                    tap: { scale: 1.12, transition: { duration: 3.2, ease: [0.16, 1, 0.3, 1] } }
+                  }}
+                  transition={{ duration: 3.2, ease: [0.16, 1, 0.3, 1] }}
+                  src="https://images.unsplash.com/photo-1703152792682-a1fe5f3dedb4?q=80&w=2062&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+                  alt="Côte d'Azur" 
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover opacity-90 md:opacity-80 group-hover:opacity-95"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 md:from-stone-950/95 via-stone-950/20 to-transparent"></div>
+                <div className="absolute bottom-8 left-8">
+                  <h3 className="text-xl font-semibold text-white uppercase tracking-wider">Côte d'Azur</h3>
+                  <span className="text-white/40 text-[10px] uppercase font-bold tracking-[0.1em]">{t('europe_cotedazur_tag')}</span>
                 </div>
               </motion.div>
 
@@ -2404,7 +2435,7 @@ export default function App() {
                 whileTap={isTouchDevice ? undefined : "tap"}
                 onTouchStart={() => setActiveBentoCard('munich')}
                 onClick={() => setActiveBentoCard('munich')}
-                className="lg:col-span-1 group relative border border-white/10 rounded-[2rem] overflow-hidden h-64 lg:h-full cursor-pointer"
+                className="group relative border border-white/10 rounded-[2rem] overflow-hidden h-72 lg:h-[290px] cursor-pointer"
               >
                 <motion.img 
                   animate={isTouchDevice ? (activeBentoCard === 'munich' ? "hover" : "initial") : undefined}
@@ -2429,13 +2460,13 @@ export default function App() {
               {/* MILAN */}
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1, transition: { duration: 0.8, delay: 0.3, ease: "easeOut" } }}
+                whileInView={{ opacity: 1, scale: 1, transition: { duration: 0.8, delay: 0.25, ease: "easeOut" } }}
                 viewport={{ once: true }}
                 whileHover={isTouchDevice ? undefined : "hover"}
                 whileTap={isTouchDevice ? undefined : "tap"}
                 onTouchStart={() => setActiveBentoCard('milan')}
                 onClick={() => setActiveBentoCard('milan')}
-                className="lg:col-span-1 group relative border border-white/10 rounded-[2rem] overflow-hidden h-64 lg:h-full cursor-pointer"
+                className="group relative border border-white/10 rounded-[2rem] overflow-hidden h-72 lg:h-[290px] cursor-pointer"
               >
                 <motion.img 
                   animate={isTouchDevice ? (activeBentoCard === 'milan' ? "hover" : "initial") : undefined}
@@ -2460,13 +2491,13 @@ export default function App() {
               {/* BERLIN */}
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1, transition: { duration: 0.8, delay: 0.4, ease: "easeOut" } }}
+                whileInView={{ opacity: 1, scale: 1, transition: { duration: 0.8, delay: 0.3, ease: "easeOut" } }}
                 viewport={{ once: true }}
                 whileHover={isTouchDevice ? undefined : "hover"}
                 whileTap={isTouchDevice ? undefined : "tap"}
                 onTouchStart={() => setActiveBentoCard('berlin')}
                 onClick={() => setActiveBentoCard('berlin')}
-                className="lg:col-span-1 group relative border border-white/10 rounded-[2rem] overflow-hidden h-64 lg:h-full cursor-pointer"
+                className="group relative border border-white/10 rounded-[2rem] overflow-hidden h-72 lg:h-[290px] cursor-pointer"
               >
                 <motion.img 
                   animate={isTouchDevice ? (activeBentoCard === 'berlin' ? "hover" : "initial") : undefined}
@@ -2491,12 +2522,12 @@ export default function App() {
               {/* FRANCE / AMSTERDAM Hybrid Duo */}
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1, transition: { duration: 0.8, delay: 0.5, ease: "easeOut" } }}
+                whileInView={{ opacity: 1, scale: 1, transition: { duration: 0.8, delay: 0.35, ease: "easeOut" } }}
                 viewport={{ once: true }}
                 whileHover={isTouchDevice ? undefined : { y: -4, transition: { duration: 0.8, ease: "easeOut" } }}
                 whileTap={{ y: -4, transition: { duration: 0.8, ease: "easeOut" } }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="lg:col-span-1 group relative border border-white/10 rounded-[2rem] overflow-hidden h-64 lg:h-full bg-stone-800/40 cursor-pointer"
+                className="group relative border border-white/10 rounded-[2rem] overflow-hidden h-72 lg:h-[290px] bg-stone-800/40 cursor-pointer"
               >
                 <div className="absolute inset-0 p-8 flex flex-col justify-between">
                   <div>

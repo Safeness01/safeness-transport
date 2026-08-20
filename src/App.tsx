@@ -2413,7 +2413,7 @@ export default function App() {
                     tap: { scale: 1.12, transition: { duration: 3.2, ease: [0.16, 1, 0.3, 1] } }
                   }}
                   transition={{ duration: 3.2, ease: [0.16, 1, 0.3, 1] }}
-                  src="https://images.unsplash.com/photo-1703152792682-a1fe5f3dedb4?q=80&w=2062&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+                  src="https://res.cloudinary.com/ec9kwdkg/image/upload/v1787255795/CÔTE-D-AZUR.jpg" 
                   alt="Côte d'Azur" 
                   loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover opacity-90 md:opacity-80 group-hover:opacity-95"

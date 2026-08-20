@@ -2377,7 +2377,7 @@ export default function App() {
                     tap: { scale: 1.12, transition: { duration: 3.2, ease: [0.16, 1, 0.3, 1] } }
                   }}
                   transition={{ duration: 3.2, ease: [0.16, 1, 0.3, 1] }}
-                  src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=75" 
+                  src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=2073&auto=format&fit=crop" 
                   alt="Paris" 
                   loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover opacity-90 md:opacity-80 group-hover:opacity-95"
@@ -2444,7 +2444,7 @@ export default function App() {
                     tap: { scale: 1.12, transition: { duration: 3.2, ease: [0.16, 1, 0.3, 1] } }
                   }}
                   transition={{ duration: 3.2, ease: [0.16, 1, 0.3, 1] }}
-                  src="https://images.unsplash.com/photo-1595867818082-083862f3d630?auto=format&fit=crop&w=600&q=75" 
+                  src="https://images.unsplash.com/photo-1595867818082-083862f3d630?q=80&w=2070&auto=format&fit=crop" 
                   alt="Munich" 
                   loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover opacity-90 md:opacity-80 group-hover:opacity-95"
@@ -2475,7 +2475,7 @@ export default function App() {
                     tap: { scale: 1.12, transition: { duration: 3.2, ease: [0.16, 1, 0.3, 1] } }
                   }}
                   transition={{ duration: 3.2, ease: [0.16, 1, 0.3, 1] }}
-                  src="https://images.unsplash.com/photo-1610016302534-6f67f1c968d8?auto=format&fit=crop&w=600&q=75" 
+                  src="https://images.unsplash.com/photo-1610016302534-6f67f1c968d8?q=80&w=2070&auto=format&fit=crop" 
                   alt="Milan" 
                   loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover opacity-90 md:opacity-80 group-hover:opacity-95"
@@ -2506,7 +2506,7 @@ export default function App() {
                     tap: { scale: 1.12, transition: { duration: 3.2, ease: [0.16, 1, 0.3, 1] } }
                   }}
                   transition={{ duration: 3.2, ease: [0.16, 1, 0.3, 1] }}
-                  src="https://images.unsplash.com/photo-1560969184-10fe8719e047?auto=format&fit=crop&w=600&q=75" 
+                  src="https://images.unsplash.com/photo-1560969184-10fe8719e047?q=80&w=2070&auto=format&fit=crop" 
                   alt="Berlin" 
                   loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover opacity-90 md:opacity-80 group-hover:opacity-95"
@@ -2590,27 +2590,27 @@ export default function App() {
               {[
                 { 
                   icon: <Building2 size={22} />, 
-                  img: "https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/Image_6_tf7z1r",
+                  img: "https://res.cloudinary.com/ec9kwdkg/image/upload/v1787237141/intercity-rides.jpg",
                   features: [t('service1_feat1'), t('service1_feat2'), t('service1_feat3')]
                 },
                 { 
                   icon: <Navigation size={22} />, 
-                  img: "https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/Image_1_vuxvex",
+                  img: "https://res.cloudinary.com/ec9kwdkg/image/upload/v1787237142/airport-transfers.png",
                   features: [t('service2_feat1'), t('service2_feat2'), t('service2_feat3')]
                 },
                 { 
                   icon: <MapPin size={22} />, 
-                  img: "https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/Image_2_ktc2ce",
+                  img: "https://res.cloudinary.com/ec9kwdkg/image/upload/v1787236907/travel-transfer.jpg",
                   features: [t('service3_feat1'), t('service3_feat2'), t('service3_feat3')]
                 },
                 { 
                   icon: <Briefcase size={22} />, 
-                  img: "https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/Image_3_s2urdg",
+                  img: "https://res.cloudinary.com/ec9kwdkg/image/upload/v1787236832/chauffeur-hailing.jpg",
                   features: [t('service4_feat1'), t('service4_feat2'), t('service4_feat3')]
                 },
                 { 
                   icon: <Calendar size={22} />, 
-                  img: "https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/Image_4_djvs21",
+                  img: "https://res.cloudinary.com/ec9kwdkg/image/upload/v1787237141/wedding-class.jpg",
                   features: [t('service5_feat1'), t('service5_feat2'), t('service5_feat3')]
                 }
               ].map((service, i) => (

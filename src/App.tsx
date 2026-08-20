@@ -2708,12 +2708,12 @@ export default function App() {
             {/* Transfers Grid - Static Tall Cards */}
             <div id="transfers-grid-container" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
-                { key: 'route_cdg', price: '100€', time: '45 min', icon: <Navigation size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/603b4374-0730-4377-a001-ab58e60cb33d_l6ue2k' },
-                { key: 'route_orly', price: '80€', time: '35 min', icon: <MapPin size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/39169e3d-ae4f-46b7-a9a0-9aee8857f11a_wzsemp' },
-                { key: 'route_disney', price: '120€', time: '50 min', icon: <Sparkles size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/b04fc1f4-3d8d-4e87-89a5-7d9dd8d174ae_jw5xtm' },
-                { key: 'route_versailles', price: '90€', time: '40 min', icon: <Building2 size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/39169e3d-ae4f-46b7-a9a0-9aee8857f11a_wzsemp' },
-                { key: 'route_giverny', price: '120€', time: '75 min', icon: <Palette size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/39169e3d-ae4f-46b7-a9a0-9aee8857f11a_wzsemp', lgOnly: true },
-                { key: 'route_beauvais', price: '120€', time: '80 min', icon: <Plane size={20} />, image: 'https://res.cloudinary.com/dopnnowvl/image/upload/f_auto,q_auto,w_600/39169e3d-ae4f-46b7-a9a0-9aee8857f11a_wzsemp', lgOnly: true },
+                { key: 'route_cdg', price: '100€', time: '45 min', icon: <Navigation size={20} />, image: 'https://res.cloudinary.com/ec9kwdkg/image/upload/w_1200/v1787150738/paris-cdg-airport.png' },
+                { key: 'route_orly', price: '80€', time: '35 min', icon: <MapPin size={20} />, image: 'https://res.cloudinary.com/ec9kwdkg/image/upload/w_1200/v1787150683/paris-orly-airport.png' },
+                { key: 'route_disney', price: '120€', time: '50 min', icon: <Sparkles size={20} />, image: 'https://res.cloudinary.com/ec9kwdkg/image/upload/w_1200/v1787150743/disneyland-paris.png' },
+                { key: 'route_versailles', price: '90€', time: '40 min', icon: <Building2 size={20} />, image: 'https://res.cloudinary.com/ec9kwdkg/image/upload/w_1200/v1787150749/versailles-paris.png' },
+                { key: 'route_giverny', price: '120€', time: '75 min', icon: <Palette size={20} />, image: 'https://res.cloudinary.com/ec9kwdkg/image/upload/w_1200/v1787150686/giverny-paris.png', lgOnly: true },
+                { key: 'route_beauvais', price: '120€', time: '80 min', icon: <Plane size={20} />, image: 'https://res.cloudinary.com/ec9kwdkg/image/upload/w_1200/v1787150687/paris-beauvais-airport.png', lgOnly: true },
               ].map((item: any, i) => {
                 return (
                   <motion.div 
@@ -2738,6 +2738,8 @@ export default function App() {
                         <img 
                           src={item.image} 
                           alt={t(item.key)}
+                          width={600}
+                          height={320}
                           className="w-full h-full object-cover transition-all duration-[2500ms] ease-[0.16,1,0.3,1] group-hover:scale-106 opacity-90 md:opacity-80 group-hover:opacity-95"
                           referrerPolicy="no-referrer"
                         />
